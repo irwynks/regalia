@@ -24,7 +24,10 @@ let Transaction = new Schema(
         marketplace: String,
         type: String,
 
-        fulfilled: { type: Boolean, default: false },
+        effectiveRoyaltyPaid: Number,
+        effectiveRoyaltyPaidPercent: Number,
+
+        fufilled: { type: Boolean, default: false },
         linkedPayments: [{ type: Schema.Types.ObjectId, ref: 'Payment' }]
     },
     { strict: false, toJSON: { virtuals: true } }
@@ -34,18 +37,20 @@ Transaction.index({ firstCreatorAddress: 1 });
 Transaction.index({ mintAddress: 1 });
 Transaction.index({ buyer: 1 });
 Transaction.index({ seller: 1 });
-Transaction.index({ fulfilled: 1 });
 
 Transaction.pre("save", function (next) {
     let data = this.toJSON();
     this.blockdata = moment.unix(this.blocktime).toDate();
-    if (!!!this.royaltyPaidPercent) {
-        this.royaltyAmount = (+data.royaltyPercent / 100) * +data.saleAmount;
-        this.royaltyPaidPercent = Math.round((+data.royaltyPaid / +this.royaltyAmount) * 100);
-    }
+
+    this.royaltyAmount = (+data.royaltyPercent / 100) * +data.saleAmount;
+    this.royaltyPaidPercent = Math.round((+data.royaltyPaid / +this.royaltyAmount) * 100);
+
+    if (!!!this.effectiveRoyaltyPaid)
+        this.effectiveRoyaltyPaid = this.royaltyPaid;
+    this.effectiveRoyaltyPaidPercent = Math.round((+data.effectiveRoyaltyPaid / +this.royaltyAmount) * 100);
 
     if (!!!this.fulfilled)
-        this.fulfilled = +this.royaltyPaidPercent >= 90;
+        this.fulfilled = +this.royaltyPaidPercent >= 95;
 
     next();
 });
