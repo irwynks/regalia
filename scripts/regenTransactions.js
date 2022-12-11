@@ -7,6 +7,7 @@ const db = require("../utils/models/model.main");
         for (let tx of txs) {
             await tx.save();
         }
+        console.log('Done');
     } catch (err) {
         console.log(err)
     }

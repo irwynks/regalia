@@ -28,7 +28,7 @@ module.exports = {
                     let success = false;
                     while (!success) {
                         try {
-                            let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS}&commitment=finalized&type=NFT_SALE`
+                            let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=finalized&type=NFT_SALE`
 
                             let { data } = await axios({
                                 url,

@@ -4,40 +4,48 @@ const moment = require("moment");
 const rclient = require("../redis");
 const axios = require("axios");
 const nfts = require('./model.nft')
+const random = require("randomatic");
 
-let Collection = new Schema({
-    name: String,
-    firstCreatorAddress: String,
-    symbol: String,
-    updateAuthority: String,
-    linkedServer: String,
-}, { strict: false })
-
+const Collection = require("./model.collection");
 //Identifiers schema
 /*
-    firstCreatorAddress: type: String,
-    symbol: String,
-    updateAuthority: String,
+    amount,
+    firstCreatorAddress,
+    payer_wallets
 */
 
 let User = new Schema(
     {
-        discordId: { type: String, required: true, unique: true },
+        pubkey: { type: String, required: true, unique: true },
+        discordId: { type: String, unique: true },
         username: String,
         discriminator: String,
         avatar_url: String,
 
         guild: { type: String },
 
-        wallets: { type: [String], default: [] },
+        authorizedCollections: { type: [String], default: [] },
         collections: { type: [Collection], default: [] },
+        wallets: { type: [String], default: [] },
+
+        vaults: { type: [String] },
+        apikey: { type: String },
 
         lastChecked: { type: Date, default: null },
-        roles: { type: [Schema.Types.Mixed], default: [] }
+        roles: { type: [Schema.Types.Mixed], default: [] },
+
+        createdAt: Date,
+        updatedAt: Date
     },
     { toJSON: { virtuals: true }, strict: false }
 );
 
+User.index({ wallets: 1 });
+User.index({ pubkey: 1 });
+User.index({ vaults: 1 });
+User.index({ discordId: 1 });
+User.index({ collections: 1 });
+User.index({ apikey: 1 });
 
 User.methods.populateMeta = async function () {
     let lean = this.toJSON();

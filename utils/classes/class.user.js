@@ -11,6 +11,14 @@ class Transaction {
         this.parsed = { ...parsed };
     }
 
+    string = () => {
+        return JSON.stringify(this);
+    };
+
+    json = () => {
+        return JSON.parse(JSON.stringify(this));
+    };
+
     save = async () => {
         console.log(this);
         try {

@@ -2,7 +2,7 @@ const solana = require('./solana');
 const axios = require('axios');
 
 const { LAMPORTS_PER_SOL, Connection } = require('@solana/web3.js');
-const connection = new Connection('https://black-twilight-sun.solana-mainnet.quiknode.pro/71aab5c2a5b9a18895ab62e905f01425186811a1', 'confirmed');
+const connection = new Connection(`https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`);
 
 const wait = require('node:timers/promises').setTimeout;
 

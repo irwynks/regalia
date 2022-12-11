@@ -11,5 +11,7 @@ mongoose.connect(`mongodb://localhost:27017/regalia`, {
 
 module.exports = {
     transactions: require('./model.transaction'),
-    users: require('./model.user')
+    users: require('./model.user'),
+    payments: mongoose.model("Payment", require('./model.payment'), "payments"),
+    collections: mongoose.model("Collection", require('./model.collection'), "collections")
 };

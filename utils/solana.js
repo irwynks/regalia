@@ -1,8 +1,9 @@
+require("dotenv").config({ path: "../.env" });
 const { Metaplex } = require("@metaplex-foundation/js");
 const { Connection, PublicKey } = require("@solana/web3.js");
 
-const hconnection = new Connection("https://rpc.theindex.io/mainnet-beta/6bd3a568-8642-4db0-afbc-d432be22f81c", "finalized");
-const connection = new Connection('https://rpc.helius.xyz/?api-key=4996474e-d9ed-47b3-b66c-62518f7b8394');
+const hconnection = new Connection(`https://rpc.theindex.io/mainnet-beta/${process.env.THEINDEX_API_KEY}`, "finalized");
+const connection = new Connection(`https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`);
 const metaplex = new Metaplex(connection);
 
 const bs58 = require("bs58");

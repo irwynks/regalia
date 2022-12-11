@@ -31,10 +31,6 @@ Payment.index({ buyer: 1 });
 Payment.index({ mintAddress: 1 });
 Payment.index({ purpose: 1, linked: 1 });
 
-Payment.methods('link', async function () {
-
-});
-
 Payment.pre("save", function (next) {
     try {
         let now = moment().toDate();

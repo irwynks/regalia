@@ -4,7 +4,18 @@ const worker = require('./workers/worker.crawl');
 const rclient = require("../utils/redis");
 const cron = require("node-cron");
 
+const poll = require('./workers/worker.poll');
+
 let dequeueing = false;
+let polling = false;
+
+cron.schedule(`* */10 * * * *`, async () => {
+    if (!polling) {
+        polling = true;
+        await poll.helius()
+        polling = false;
+    }
+}, { scheduled: true })
 
 const dequeue = async () => {
     try {

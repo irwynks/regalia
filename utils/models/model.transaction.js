@@ -12,20 +12,20 @@ let Transaction = new Schema(
         mintAddress: String,
         blocktime: String,
         blockdate: Date,
+
         buyer: { type: String, required: true },
         seller: { type: String, required: true },
+
         royaltyPercent: Number,
         saleAmount: Number,
-
         royaltyAmount: Number,
         royaltyPaid: Number,
         royaltyPaidPercent: Number,
-
         marketplace: String,
         type: String,
 
-        fufilled: { type: Boolean, default: false },
-        linkedPayments: { type: [Schema.Types.ObjectId], ref: 'Payment' }
+        fulfilled: { type: Boolean, default: false },
+        linkedPayments: [{ type: Schema.Types.ObjectId, ref: 'Payment' }]
     },
     { strict: false, toJSON: { virtuals: true } }
 );
@@ -34,8 +34,9 @@ Transaction.index({ firstCreatorAddress: 1 });
 Transaction.index({ mintAddress: 1 });
 Transaction.index({ buyer: 1 });
 Transaction.index({ seller: 1 });
+Transaction.index({ fulfilled: 1 });
 
-Transaction.pre("save", async function (next) {
+Transaction.pre("save", function (next) {
     let data = this.toJSON();
     this.blockdata = moment.unix(this.blocktime).toDate();
     if (!!!this.royaltyPaidPercent) {
@@ -43,9 +44,8 @@ Transaction.pre("save", async function (next) {
         this.royaltyPaidPercent = Math.round((+data.royaltyPaid / +this.royaltyAmount) * 100);
     }
 
-    if (!!!this.fulfilled) {
+    if (!!!this.fulfilled)
         this.fulfilled = +this.royaltyPaidPercent >= 90;
-    }
 
     next();
 });
