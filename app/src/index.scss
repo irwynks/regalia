@@ -1,0 +1,137 @@
+html,
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  box-sizing: border-box;
+
+  >div {
+    box-sizing: border-box;
+    background: black;
+    box-sizing: border-box;
+  }
+}
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  color: #e3b33c;
+  background-color: black;
+  border-color: white;
+  font-weight: bold;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.container-fluid,
+.container,
+.tab-content,
+.tab-pane {
+  height: inherit;
+}
+
+.admin-container,
+.user-container {
+  height: calc(100% - 70px);
+  font-size: 12px;
+  overflow-y: scroll;
+  padding-top: 20px;
+}
+
+.nav-tabs .nav-link {
+  background: 0 0;
+  border: none;
+}
+
+.nav-tabs {
+  border-bottom: none;
+}
+
+.accordion {
+  background: black;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+}
+
+.accordion-button {
+  color: whitesmoke;
+  background: #ffe1;
+  border-radius: 2px;
+  font-size: 14px;
+  font-family: 'Lato';
+  text-transform: uppercase;
+  box-shadow: none;
+
+  &::after {
+    display: none;
+  }
+
+  &:not(.collapsed) {
+    color: whitesmoke;
+    //font-weight: bold;
+    background: #ffe1;
+    border-radius: 2px;
+    box-shadow: none;
+  }
+}
+
+.accordion-body {
+  background: black;
+  color: whitesmoke;
+}
+
+.accordion-item {
+  border: none;
+  background: black;
+}
+
+button.btn {
+  font-family: "Rubik";
+  font-size: 12px;
+  text-transform: uppercase;
+  //font-weight: bold;
+  border: none;
+}
+
+.wallet-adapter-dropdown {
+  position: relative;
+  margin: 0 auto;
+  display: block !important;
+}
+
+.wallet-adapter-dropdown-list {
+  position: absolute;
+  left: 50% !important;
+  transform: translate(-50%, 10px) !important;
+  width: 160px;
+}
+
+.wallet-adapter-button {
+  margin: 0 auto !important;
+}
+
+.text-muted {
+  color: #ffc107 !important;
+}
+
+.bottom-spacer {
+  height: 60px;
+  width: 100%;
+}
+
+.wallet-adapter-button {
+  font-family: "Rubik";
+  font-weight: normal;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}

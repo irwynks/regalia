@@ -1,0 +1,70 @@
+.admin-container {
+
+    .cta {
+        align-self: center;
+        justify-self: center;
+        top: 50%;
+        position: relative;
+
+        span {
+            color: #e3b33c;
+            cursor: pointer;
+
+            &:hover {
+                font-weight: bold;
+            }
+        }
+    }
+
+    margin-bottom: 50px;
+
+    .select-guild {
+
+        .container {
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Lato';
+
+            .text {
+                font-size: 12px;
+                text-transform: uppercase;
+            }
+
+            .guilds {
+
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                margin-top: 20px;
+
+                .guild {
+
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 10px;
+                    cursor: pointer;
+
+                    &:hover {
+                        transform: scale(1.1)
+                    }
+
+                    .icon {}
+
+                    .name {
+                        margin-top: 5px;
+                        font-size: 13px;
+                    }
+
+                }
+            }
+
+        }
+    }
+
+}

@@ -1,0 +1,48 @@
+.landing-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    .login {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+
+    .logo-container {
+        margin-top: -220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .text {
+            text-align: center;
+            margin-top: -20px;
+            font-size: 40px;
+            text-align: center;
+            color: whitesmoke;
+            font-family: 'Lato';
+        }
+
+        .description {
+            margin-top: -3px;
+            font-size: 15px;
+            color: #ad8113;
+            font-family: "Rubik", sans-serif;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .image img {
+            width: 200px;
+            height: auto;
+        }
+    }
+}

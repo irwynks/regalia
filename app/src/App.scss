@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;300;400;500&family=Rubik:ital,wght@0,300;0,400;1,300;1,400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Cairo&family=Catamaran&family=Lato:wght@300;400&family=Roboto+Slab&family=Rubik&family=Varela+Round&display=swap');
+
+.root {
+  background: black;
+  //overflow: hidden;
+}
+
+html,
+body {
+  //overflow: hidden;
+}
+
+.container-fluid {
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+  color: whitesmoke;
+  font-family: "Rubik", sans-serif !important;
+
+}
+
+.nav-link {
+  text-transform: uppercase;
+  font-size: 11px;
+
+  color: whitesmoke;
+
+  &:hover {
+    color: #e3b33c;
+  }
+}

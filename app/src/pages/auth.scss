@@ -1,0 +1,59 @@
+.auth-container {
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+    padding-top: 100px;
+
+    .ingress {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            height: 100px;
+            width: auto;
+            margin-bottom: 10px;
+        }
+
+        .greeting {
+            font-size: 30px;
+            color: whitesmoke;
+            font-family: "Lato";
+
+            .username {
+                color: #CAA443;
+                font-size: 30px
+            }
+        }
+
+        .login-select {
+            margin-top: 20px;
+            font-size: 15px;
+            color: whitesmoke;
+            font-family: "Rubik";
+            text-align: center;
+
+            .options {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+
+                .login-type {
+                    width: 90px;
+                    border-radius: 2px;
+                    font-size: 13px;
+                    font-weight: bold;
+                    background: #ad8113;
+                    text-align: center;
+                    padding: 5px 10px;
+                    margin: 10px;
+                }
+            }
+        }
+    }
+
+}

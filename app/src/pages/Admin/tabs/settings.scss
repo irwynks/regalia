@@ -1,0 +1,34 @@
+.settings-container {
+
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start !important;
+    font-family: 'Lato';
+    padding-bottom: 50px;
+
+    .add-wallet {
+        margin: 0 auto;
+    }
+
+    .collection .existing {
+        .text {
+            font-size: 16px;
+            font-family: 'Inconsolata';
+            font-weight: bold;
+        }
+    }
+
+
+}
+
+.collections {
+    .collection-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 100%;
+    }
+}
