@@ -1,3 +1,4 @@
+require("dotenv").config({ path: "../.env" });
 const RPC = require('../../utils/classes/class.rpc');
 const Transaction = require('../../utils/classes/class.transaction');
 
@@ -6,8 +7,8 @@ let parsed = {};
 (async () => {
 
     const connection = new RPC({
-        rpcURL: 'https://black-twilight-sun.solana-mainnet.quiknode.pro/71aab5c2a5b9a18895ab62e905f01425186811a1/',
-        wsURL: 'wss://black-twilight-sun.solana-mainnet.quiknode.pro/71aab5c2a5b9a18895ab62e905f01425186811a1/',
+        rpcURL: `https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`,
+        wsURL: `wss://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`,
         commitment: 'finalized'
     })
 

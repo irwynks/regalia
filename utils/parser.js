@@ -1,3 +1,4 @@
+require("dotenv").config({ path: "../.env" });
 const solana = require('./solana');
 const axios = require('axios');
 
