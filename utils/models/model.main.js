@@ -13,5 +13,6 @@ module.exports = {
     transactions: require('./model.transaction'),
     users: require('./model.user'),
     payments: mongoose.model("Payment", require('./model.payment'), "payments"),
-    collections: mongoose.model("Collection", require('./model.collection'), "collections")
+    collections: mongoose.model("Collection", require('./model.collection'), "collections"),
+    nfts: mongoose.model("NFT", require('./model.nft'), "nfts")
 };

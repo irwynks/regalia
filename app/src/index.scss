@@ -91,9 +91,9 @@ body {
 }
 
 button.btn {
-  font-family: "Rubik";
-  font-size: 12px;
-  text-transform: uppercase;
+  font-family: "Rubik" !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
   //font-weight: bold;
   border: none;
 }

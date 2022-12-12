@@ -5,6 +5,7 @@ const db = require("../utils/models/model.main");
     try {
         let txs = await db.transactions.find();
         for (let tx of txs) {
+            tx.set('fufilled', undefined)
             await tx.save();
         }
         console.log('Done');

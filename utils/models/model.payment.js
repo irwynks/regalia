@@ -5,31 +5,27 @@ const rclient = require("../redis");
 
 let Payment = new Schema(
     {
-        hash: { type: String, unique: true },
-        identifier: { type: String, unique: true },
-        payer: { type: String, unique: true },
+        hash: { type: String, required: true },
+        blocktime: String,
+        payer: { type: String, required: true },
         destination: { type: String, required: true },
         amount: { type: Number, required: true },
-        purpose: { type: String, enum: ['onboarding', 'royalty'], required: true },
+        purpose: { type: String, enum: ['onboarding', 'royalty', 'orphaned'], required: true },
 
         //In the case of a royaltypayment, we need the owner of the NFT and the mintAddress
         buyer: { type: String },
         mintAddress: { type: String },
 
-        linked: { type: Boolean, default: false },
-
-        createdAt: Date,
-        updatedAt: Date,
+        linked: { type: Boolean, default: false }
     },
     { toJSON: { virtuals: true } }
 );
 
+
 Payment.index({ hash: 1 });
-Payment.index({ identifier: 1 });
 Payment.index({ payer: 1 });
 Payment.index({ buyer: 1 });
-Payment.index({ mintAddress: 1 });
-Payment.index({ purpose: 1, linked: 1 });
+Payment.index({ seller: 1 });
 
 Payment.pre("save", function (next) {
     try {

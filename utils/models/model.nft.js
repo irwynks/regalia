@@ -6,13 +6,15 @@ const axios = require("axios");
 
 let NFT = new Schema(
     {
-        mint: { type: String, required: true },
+        name: { type: String, default: "" },
+        mintAddress: { type: String, required: true },
         firstCreatorAddress: { type: String, required: true },
-        symbol: String,
-        updateAuthority: String,
-        royaltyPaid: { type: Number, default: 0 },
-        lastSalePrice: Number,
-        currentOwnerAddress: String
+        symbol: { type: String, default: "" },
+        updateAuthority: { type: String, default: "" },
+        creators: { type: [Schema.Types.Mixed], default: [] },
+        image_url: { type: String, default: '/nft-placeholder.png' },
+        attributes: { type: [Schema.Types.Mixed], default: [] },
+        currentOwner: String
     },
     { toJSON: { virtuals: true }, strict: false }
 );
@@ -37,4 +39,4 @@ NFT.post("save", async function (doc, next) {
     }
 });
 
-module.exports = mongoose.model("NFT", NFT, "nfts");
+module.exports = NFT

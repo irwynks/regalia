@@ -13,7 +13,6 @@ export const Admin = () => {
     let [user, setUser] = useGlobal('user');
     let [mode, setMode] = useGlobal('mode');
 
-    let [guilds] = useGlobal('guilds');
     let [selectedGuild, setSelectedGuild] = useGlobal('selectedGuild');
     let [activeKey, setKey] = useGlobal('activeTabKey');
 
@@ -34,6 +33,9 @@ export const Admin = () => {
                             <Overview />
                         </Tab> 
                         <Tab eventKey="community" title="Community Stats">
+                            <Community />
+                    </Tab>
+                        <Tab eventKey="sentinel" title="Sentinel">
                             <Community />
                         </Tab>
                         <Tab eventKey="settings" title="Settings">

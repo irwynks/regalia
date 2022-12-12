@@ -27,14 +27,16 @@ let Transaction = new Schema(
         effectiveRoyaltyPaid: Number,
         effectiveRoyaltyPaidPercent: Number,
 
-        fufilled: { type: Boolean, default: false },
-        linkedPayments: [{ type: Schema.Types.ObjectId, ref: 'Payment' }]
+        fulfilled: { type: Boolean, default: false },
+        linkedPayments: { type: [Schema.Types.Mixed], default: [] }
     },
     { strict: false, toJSON: { virtuals: true } }
 );
 
 Transaction.index({ firstCreatorAddress: 1 });
 Transaction.index({ mintAddress: 1 });
+Transaction.index({ mintAddress: 1, buyer: 1 });
+Transaction.index({ mintAddress: 1, buyer: 1, blocktime: -1 });
 Transaction.index({ buyer: 1 });
 Transaction.index({ seller: 1 });
 

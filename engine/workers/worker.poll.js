@@ -2,15 +2,25 @@ const solana = require("../../utils/solana");
 const parser = require("../../utils/parser");
 const db = require('../../utils/models/model.main');
 const rclient = require('../../utils/redis');
+
+const _ = require('lodash');
+
 const Transaction = require('../../utils/classes/class.transaction')
 const { PromisePool } = require("@supercharge/promise-pool");
+
 const axios = require('axios');
+
+const { Metaplex, Metadata } = require("@metaplex-foundation/js");
+const { Connection, PublicKey } = require("@solana/web3.js");
+
+const connection = new Connection(`https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`);
+const metaplex = new Metaplex(connection);
 
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
 
-    helius: async () => {
+    transactions: async () => {
         try {
 
             //Get collections that are being watched. 
@@ -59,7 +69,6 @@ module.exports = {
                                             } else {
                                                 //console.log(mintAddress, 'not found.')
                                             }
-
 
                                             let { data } = await axios({ url, method: 'get' })
 
@@ -113,6 +122,102 @@ module.exports = {
         } finally {
             return;
         }
+    },
+
+    userWalletNFTs: async () => {
+
+        try {
+
+            let users = await db.users.find();
+
+            await PromisePool.withConcurrency(5)
+                .for(users)
+                .process(async (user) => {
+                    try {
+                        let lean = user.toJSON();
+
+                        console.log('Getting from user', lean.pubkey)
+
+                        const nfts = await metaplex.nfts().findAllByOwner({ owner: new PublicKey(lean.pubkey) });
+
+                        let mintAccounts = nfts.map(i => i.mintAddress);
+                        let addToUser = [];
+
+                        while (!!mintAccounts.length) {
+                            let batch = mintAccounts.splice(0, 100)
+
+                            let { data: meta } = await axios({
+                                method: 'post',
+                                url: `https://api.helius.xyz/v0/tokens/metadata?api-key=${process.env.HELIUS_API_KEY}`,
+                                data: { mintAccounts: batch }
+                            })
+
+                            for (let item of meta) {
+
+                                try {
+
+                                    let { mint: mintAddress } = item;
+                                    let { updateAuthority } = item.onChainData;
+                                    let { creators } = item.onChainData.data;
+                                    let { name, image: image_url, symbol, attributes } = item.offChainData;
+
+                                    let firstCreator = creators.find(i => { return +i.share === 0 && !!i.verified });
+                                    if (!!!firstCreator)
+                                        firstCreator = creators.find(i => { return +i.share === 0 });
+                                    if (!!!firstCreator)
+                                        firstCreator = creators.find(i => { return !!i.verified });
+                                    let firstCreatorAddress = firstCreator.address
+
+                                    let nft = { name, mintAddress, firstCreatorAddress, symbol, updateAuthority, creators, image_url, attributes, currentOwner: lean.pubkey };
+
+                                    let found = await db.nfts.findOne({ mintAddress });
+
+                                    let { currentOwner: buyer } = nft;
+                                    let [transaction] = await db.transactions.find({ buyer, mintAddress }).sort({ blocktime: -1 }).limit(1).lean();
+
+                                    nft.tx = transaction ? transaction : null;
+
+                                    if (!!found) {
+                                        for (let [key, val] of Object.entries(nft)) {
+                                            found.set(key, val);
+                                        }
+                                        await found.save();
+
+                                    } else {
+                                        let newNFT = new db.nfts(nft);
+                                        found = await newNFT.save()
+                                    }
+
+                                    addToUser.push(found._id.toString());
+                                } catch (err) {
+                                    if (/(Cannot read properties of null \(reading 'find'\))|(Cannot destructure property 'name' of 'item.offChainData')/i.test(err + '')) {
+                                        console.error('Potentially a scam NFT')
+                                        console.error(item.mint);
+                                    } else {
+                                        console.log(err)
+                                        console.error(item.onChainData.data);
+                                    }
+                                }
+
+                            }
+                        }
+
+                        console.log(addToUser);
+
+                        user.set('nfts', _.uniq(addToUser));
+                        await user.save();
+
+                    } catch (err) {
+                        console.log(err);
+                    }
+                })
+
+        } catch (err) {
+
+        } finally {
+            return;
+        }
+
     }
 
 }

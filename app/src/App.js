@@ -29,6 +29,8 @@ const App = () => {
     
     console.log('RENDER APP', session);
 
+    console.log(process.env.REACT_APP_RPC)
+
     const router = createBrowserRouter([
         {
             path: '/',
@@ -50,7 +52,6 @@ const App = () => {
     ]);
 
     const network = WalletAdapterNetwork.Mainnet;
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
     const wallets = useMemo(
         () => [
@@ -64,8 +65,8 @@ const App = () => {
     );
 
     return (
-        <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect={false}>
+        <ConnectionProvider endpoint={process.env.REACT_APP_RPC}>
+            <WalletProvider wallets={wallets} autoConnect={true}>
                 <WalletModalProvider>
                     <RouterProvider router={router} /> 
                 </WalletModalProvider>

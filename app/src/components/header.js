@@ -3,6 +3,10 @@ import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import { Container, Navbar, Nav, Image,  } from 'react-bootstrap';
 import './header.scss'; 
 
+const bsf = (str, chars) => {
+    return `${str.slice(0, chars)}...${str.slice(-1 * +chars)}`
+}
+
 export const Header = () => {
 
     const navigate = useNavigate();
@@ -32,9 +36,12 @@ export const Header = () => {
             <Navbar.Text collapse>
                         <div className="user">
                             <div className="avatar">
-                                <Image src={memoified_user.avatar_url} rounded />
+                                <Image src={
+                                    //`https://source.boringavatars.com/bauhaus/200/${user.pubkey}?colors=FB6F24,EECB22,5191C1,1E6495,0A4B75`
+                                    `https://avatars.dicebear.com/api/identicon/${user.pubkey}.svg`
+                                } rounded />
                             </div> 
-                            <div className="username">{memoified_user.username}#{memoified_user.discriminator}</div>
+                            <div className="username">{bsf(memoified_user.pubkey, 6)}</div>
                            
                         </div> 
             </Navbar.Text>

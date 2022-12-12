@@ -213,13 +213,7 @@ export const Settings = (props) => {
 
                         </div>
                     </Accordion.Body>
-                </Accordion.Item>
-                <Accordion.Item eventKey="0" >
-                    <Accordion.Header>Linked Wallets</Accordion.Header>
-                    <Accordion.Body>
-                        <WalletMultiButton /> 
-                    </Accordion.Body>
-                </Accordion.Item>
+                </Accordion.Item> 
                 <Accordion.Item eventKey="1" >
                     <Accordion.Header>Discord Server</Accordion.Header>
                     <Accordion.Body>

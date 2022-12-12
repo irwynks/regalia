@@ -7,13 +7,22 @@ const cron = require("node-cron");
 const poll = require('./workers/worker.poll');
 
 let dequeueing = false;
-let polling = false;
+let pollingTransactions = false;
+let pollingOwnedNFTs = false;
 
 cron.schedule(`* */10 * * * *`, async () => {
-    if (!polling) {
-        polling = true;
-        await poll.helius()
-        polling = false;
+    if (!pollingTransactions) {
+        pollingTransactions = true;
+        await poll.transactions()
+        pollingTransactions = false;
+    }
+}, { scheduled: true })
+
+cron.schedule(`* */5 * * * *`, async () => {
+    if (!pollingOwnedNFTs) {
+        pollingOwnedNFTs = true;
+        await poll.userWalletNFTs()
+        pollingOwnedNFTs = false;
     }
 }, { scheduled: true })
 

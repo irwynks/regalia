@@ -13,6 +13,8 @@ const { DISCORD_CLIENT_ID, DISCORD_SECRET } = process.env;
 console.table({ DISCORD_CLIENT_ID, DISCORD_SECRET })
 
 const random = require("randomatic");
+const nacl = require("tweetnacl");
+const bs58 = require("bs58");
 
 module.exports = (router) => {
 
@@ -123,6 +125,122 @@ module.exports = (router) => {
                     resp = {
                         success: false,
                         message: 'User couldnt be authenticated.',
+                        data: {}
+                    }
+                }
+
+            } catch (err) {
+                console.log(err)
+                resp = {
+                    success: false,
+                    message: err,
+                    data: {}
+                }
+            } finally {
+                res.status(200).send(resp)
+            }
+
+        })
+
+    router.route(`/v1/auth/nonce`)
+        .get(async (req, res) => {
+            let resp;
+            try {
+
+                let { pubkey } = req.query;
+
+                if (!!pubkey) {
+
+                    let nonce = random('0', 20);
+                    await rclient.setex(`nonce:${pubkey}`, 60 * 10, nonce)
+
+                    console.table({ pubkey, nonce })
+
+                    resp = {
+                        success: true,
+                        message: 'Nonce generated.',
+                        data: { nonce }
+                    }
+
+                } else {
+                    resp = {
+                        success: false,
+                        message: 'Missing user wallet address.',
+                        data: {}
+                    }
+                }
+
+            } catch (err) {
+                console.log(err)
+                resp = {
+                    success: false,
+                    message: err,
+                    data: {}
+                }
+            } finally {
+                res.status(200).send(resp)
+            }
+
+        })
+
+    router.route(`/v1/auth/signed`)
+        .post(async (req, res) => {
+            let resp;
+            try {
+
+                let { encoded, pubkey } = req.body;
+
+                if (!!pubkey) {
+
+                    let nonce = await rclient.get(`nonce:${pubkey}`);
+
+                    const signatureUint8 = bs58.decode(encoded);
+                    const nonceUint8 = new TextEncoder().encode(nonce);
+                    const pubKeyUint8 = bs58.decode(pubkey);
+
+                    let ok = nacl.sign.detached.verify(nonceUint8, signatureUint8, pubKeyUint8)
+
+                    if (!!ok) {
+                        let found = await db.users.findOne({ pubkey }).populate('nfts');
+
+                        if (!!!found) {
+
+                            let newUser = new db.users({ pubkey });
+                            found = await newUser.save();
+
+                        };
+
+                        user = found.toJSON();
+
+                        let session_id = await rclient.hget(`maps.userToSession`, user._id.toString());
+                        if (!!!session_id) {
+                            session_id = random('Aa0', 20);
+                            await rclient.multi()
+                                .hset(`maps.userToSession`, user._id.toString(), session_id)
+                                .hset(`maps.sessionToUser`, session_id, user._id.toString())
+                                .exec()
+                        }
+
+                        resp = {
+                            success: true,
+                            message: 'Verified.',
+                            data: { session_id, user, guilds: [] }
+                        }
+
+                    } else {
+
+                        resp = {
+                            success: false,
+                            message: 'Invalid signature.',
+                            data: {}
+                        }
+
+                    }
+
+                } else {
+                    resp = {
+                        success: false,
+                        message: 'Missing user wallet address.',
                         data: {}
                     }
                 }
