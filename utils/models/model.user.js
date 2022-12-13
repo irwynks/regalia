@@ -17,7 +17,7 @@ let User = new Schema(
         avatar_url: String,
 
         authorizedCollections: { type: [String], default: [] },
-        collections: { type: [Collection], default: [] },
+        collections: { type: [Schema.Types.Mixed], default: [] },
         wallets: { type: [String], default: [] },
 
         nfts: { type: [Schema.Types.ObjectId], ref: 'NFT' },

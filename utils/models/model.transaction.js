@@ -49,10 +49,10 @@ Transaction.pre("save", function (next) {
 
     if (!!!this.effectiveRoyaltyPaid)
         this.effectiveRoyaltyPaid = this.royaltyPaid;
-    this.effectiveRoyaltyPaidPercent = Math.round((+data.effectiveRoyaltyPaid / +this.royaltyAmount) * 100);
+    this.effectiveRoyaltyPaidPercent = Math.round((+this.effectiveRoyaltyPaid / +this.royaltyAmount) * 100);
 
     if (!!!this.fulfilled)
-        this.fulfilled = +this.royaltyPaidPercent >= 95;
+        this.fulfilled = +this.effectiveRoyaltyPaidPercent >= 95;
 
     next();
 });

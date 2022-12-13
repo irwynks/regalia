@@ -30,3 +30,14 @@ body {
     color: #e3b33c;
   }
 }
+
+.wallet-adapter-button-start-icon {
+  display: none !important;
+}
+
+.wallet-adapter-button {
+  align-items: center !important;
+  font-family: 'Lato' !important;
+  font-size: 12px !important;
+  text-transform: uppercase;
+}

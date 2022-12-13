@@ -13,7 +13,7 @@ module.exports = {
     scrape: async (data) => {
         try {
 
-            console.log(data);
+            console.log('DATA', data);
 
             let { address } = data;
 
@@ -30,10 +30,7 @@ module.exports = {
                         try {
                             let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=finalized&type=NFT_SALE`
 
-                            let { data } = await axios({
-                                url,
-                                method: 'get'
-                            })
+                            let { data } = await axios({ url, method: 'get' })
 
                             for (let item of data) {
                                 let hash = item.signature;
@@ -49,6 +46,8 @@ module.exports = {
                             }
 
                             success = true;
+                            await wait(100);
+
                         } catch (err) {
                             console.log(err.code);
                             success = false;

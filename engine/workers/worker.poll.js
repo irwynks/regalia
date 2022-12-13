@@ -58,49 +58,10 @@ module.exports = {
                                     while (!success) {
                                         try {
 
-                                            //Get last logged sale and build request using symbol and update authority
-                                            let [lastLogged] = await db.transactions.find({ mintAddress }).sort({ blocktime: -1 }).limit(1).lean()
-
-                                            let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=finalized&type=NFT_SALE`
-
-                                            if (!!lastLogged) {
-                                                //console.log(lastLogged)
-                                                url = url + `&until=${lastLogged.hash}`
-                                            } else {
-                                                //console.log(mintAddress, 'not found.')
-                                            }
-
-                                            let { data } = await axios({ url, method: 'get' })
-
-                                            console.log(data.length, 'transactions received from helius for', mintAddress)
-
-                                            for (let item of data) {
-                                                let hash = item.signature;
-                                                let exists = await db.transactions.exists({ hash });
-
-                                                if (!!!exists) {
-
-                                                    let parsed = await parser.parseTransactionsHelius(item);
-
-                                                    let tx = new Transaction({ parsed })
-                                                    await tx.save()
-
-                                                    //If this is a new transaction, send to webhook
-                                                    let slug = {
-                                                        action: 'new_sale',
-                                                        data: {
-                                                            ...tx.json()
-                                                        }
-                                                    }
-                                                    await rclient.lpush(`webhook.queue`, JSON.stringify(slug));
-
-                                                } else {
-                                                    console.log('Transaction already logged.')
-                                                }
-                                            }
-
+                                            await getTransactionData(mintAddress);
                                             success = true;
                                             await wait(100);
+
                                         } catch (err) {
                                             console.log(err.code);
                                             success = false;
@@ -124,11 +85,13 @@ module.exports = {
         }
     },
 
-    userWalletNFTs: async () => {
+    userWalletNFTs: async (pubkey) => {
 
         try {
-
-            let users = await db.users.find();
+            let query = {};
+            if (!!pubkey)
+                query.pubkey = pubkey;
+            let users = await db.users.find(query);
 
             await PromisePool.withConcurrency(5)
                 .for(users)
@@ -175,7 +138,7 @@ module.exports = {
                                     let { currentOwner: buyer } = nft;
                                     let [transaction] = await db.transactions.find({ buyer, mintAddress }).sort({ blocktime: -1 }).limit(1).lean();
 
-                                    nft.tx = transaction ? transaction : null;
+                                    nft.tx = !!transaction ? transaction : null;
 
                                     if (!!found) {
                                         for (let [key, val] of Object.entries(nft)) {
@@ -184,11 +147,17 @@ module.exports = {
                                         await found.save();
 
                                     } else {
+
+                                        //Find tx for this NFT if it hasn't been found.
+                                        let tx = await getTransactionData(nft.mintAddress);
+                                        nft.tx = !!tx ? tx : null;
+
                                         let newNFT = new db.nfts(nft);
                                         found = await newNFT.save()
                                     }
 
                                     addToUser.push(found._id.toString());
+
                                 } catch (err) {
                                     if (/(Cannot read properties of null \(reading 'find'\))|(Cannot destructure property 'name' of 'item.offChainData')/i.test(err + '')) {
                                         console.error('Potentially a scam NFT')
@@ -202,8 +171,6 @@ module.exports = {
                             }
                         }
 
-                        console.log(addToUser);
-
                         user.set('nfts', _.uniq(addToUser));
                         await user.save();
 
@@ -213,11 +180,55 @@ module.exports = {
                 })
 
         } catch (err) {
-
+            console.log(err);
         } finally {
             return;
         }
 
     }
 
+}
+
+const getTransactionData = async () => {
+    //Get last logged sale and build request using symbol and update authority
+    let [lastLogged] = await db.transactions.find({ mintAddress }).sort({ blocktime: -1 }).limit(1).lean()
+
+    let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=finalized&type=NFT_SALE`
+
+    if (!!lastLogged) {
+        //console.log(lastLogged)
+        url = url + `&until=${lastLogged.hash}`
+    } else {
+        //console.log(mintAddress, 'not found.')
+    }
+
+    let { data } = await axios({ url, method: 'get' })
+
+    console.log(data.length, 'transactions received from helius for', mintAddress)
+
+    for (let item of data) {
+        let hash = item.signature;
+        let exists = await db.transactions.findOne({ hash });
+
+        if (!!!exists) {
+
+            let parsed = await parser.parseTransactionsHelius(item);
+
+            let tx = new Transaction({ parsed })
+            await tx.save()
+
+            //If this is a new transaction, send to webhook
+            let slug = {
+                action: 'new_sale',
+                data: {
+                    ...tx.json()
+                }
+            }
+            await rclient.lpush(`webhook.queue`, JSON.stringify(slug));
+            return tx.json();
+        } else {
+            console.log('Transaction already logged.')
+            return exists.toJSON()
+        }
+    }
 }

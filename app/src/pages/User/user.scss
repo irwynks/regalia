@@ -4,99 +4,222 @@
 
         height: 100%;
 
-        .tracked-nfts {
+        .tracked-nfts,
+        .other-nfts {
+
+            margin-bottom: 30px;
+
+            .title {
+                font-family: 'Lato';
+                font-size: 14px;
+                text-transform: uppercase;
+                color: #e3b33c;
+                font-weight: bold;
+                margin-bottom: 5px;
+                width: 100%;
+            }
 
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
             width: 100%;
-            height: 100%;
-
-            .nft {
-                position: relative;
-                width: 200px;
-                margin: 10px 10px 20px 10px;
-                border: 1px solid #f5f5f54f;
-                font-size: 13px;
-                border-radius: var(--bs-border-radius) !important;
-
-                cursor: pointer;
 
 
-                img {
-                    width: 198px;
-                }
+            .nfts {
 
-                .badge {
-                    position: absolute;
-                    top: 2px;
-                    left: -5px;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                align-items: flex-start;
+                width: 100%;
+
+                .nft {
+                    position: relative;
+                    width: 200px;
+                    margin: 10px 10px 20px 10px;
+                    border: 1px solid #f5f5f54f;
+                    font-size: 13px;
+                    border-radius: var(--bs-border-radius) !important;
+
+                    cursor: pointer;
+
 
                     img {
-                        width: 35px;
+                        width: 198px;
                     }
-                }
 
-                .info {
-
-                    position: relative;
-
-                    .marketplace {
+                    .badge {
                         position: absolute;
                         top: 2px;
-                        right: 10px;
-                        text-transform: uppercase;
-                        font-family: "Lato";
-                        font-size: 9px;
+                        left: -5px;
+
+                        img {
+                            width: 35px;
+                        }
                     }
 
-                    margin-top: 10px;
-                    margin-bottom: 5px;
+                    .info {
 
-                    .name {
-                        padding: 0 10px;
-                        text-align: justify;
-                        text-overflow: ellipsis;
-                    }
+                        position: relative;
 
-                    .price {
-                        padding: 0 10px;
-                        text-align: justify;
-                    }
-
-                    .royalty-fee {
-                        padding: 0 10px;
-                        text-align: justify;
-                        font-size: 11px;
-                        margin-top: 5px;
-
-                        span {
-                            float: right;
+                        .marketplace {
+                            position: absolute;
+                            top: 2px;
+                            right: 10px;
                             text-transform: uppercase;
-                            font-size: 12px;
-                            margin-top: -2px;
-
-                            &:hover {
-                                transform: scale(1.1);
-                                margin-right: 3px;
-                            }
-
-                            &.paid {
-                                color: #ffc107;
-                            }
-
-                            &.unpaid {
-                                color: rgb(204, 2, 2);
-                            }
+                            font-family: "Lato";
+                            font-size: 9px;
                         }
 
+                        margin-top: 10px;
+                        margin-bottom: 5px;
+
+                        .name {
+                            padding: 0 10px;
+                            text-align: justify;
+                            text-overflow: ellipsis;
+                        }
+
+                        .price {
+                            padding: 0 10px;
+                            text-align: justify;
+                        }
+
+                        .royalty-fee {
+                            padding: 0 10px;
+                            text-align: justify;
+                            font-size: 11px;
+                            margin-top: 5px;
+
+                            span {
+                                float: right;
+                                text-transform: uppercase;
+                                font-size: 12px;
+                                margin-top: -2px;
+
+                                &:hover {
+                                    transform: scale(1.1);
+                                    margin-right: 3px;
+                                }
+
+                                &.paid {
+                                    color: #ffc107;
+                                }
+
+                                &.unpaid {
+                                    color: rgb(204, 2, 2);
+                                }
+                            }
 
 
+
+                        }
                     }
                 }
             }
+        }
 
+        .other-nfts {
+
+            .nfts {
+
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: flex-start;
+                width: 100%;
+
+                .nft {
+                    position: relative;
+                    width: 120px;
+                    margin: 10px 10px 20px 10px;
+                    border: 1px solid #f5f5f54f;
+                    font-size: 13px;
+                    border-radius: var(--bs-border-radius) !important;
+
+                    cursor: pointer;
+
+
+                    img {
+                        width: 118px;
+                        height: 118px;
+                    }
+
+                    .badge {
+                        position: absolute;
+                        top: 2px;
+                        left: -5px;
+
+                        img {
+                            width: 35px;
+                        }
+                    }
+
+                    .info {
+
+                        position: relative;
+
+                        .marketplace {
+                            position: absolute;
+                            top: 2px;
+                            right: 10px;
+                            text-transform: uppercase;
+                            font-family: "Lato";
+                            font-size: 9px;
+                        }
+
+                        margin-top: 10px;
+                        margin-bottom: 5px;
+
+                        .name {
+                            padding: 0 10px;
+                            font-size: 11px;
+                            text-align: center;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            white-space: nowrap;
+                        }
+
+                        .price {
+                            padding: 0 10px;
+                            text-align: justify;
+                        }
+
+                        .royalty-fee {
+                            padding: 0 10px;
+                            text-align: justify;
+                            font-size: 11px;
+                            margin-top: 5px;
+
+                            span {
+                                float: right;
+                                text-transform: uppercase;
+                                font-size: 12px;
+                                margin-top: -2px;
+
+                                &:hover {
+                                    transform: scale(1.1);
+                                    margin-right: 3px;
+                                }
+
+                                &.paid {
+                                    color: #ffc107;
+                                }
+
+                                &.unpaid {
+                                    color: rgb(204, 2, 2);
+                                }
+                            }
+
+
+
+                        }
+                    }
+                }
+            }
         }
 
     }

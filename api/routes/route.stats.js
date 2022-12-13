@@ -14,8 +14,12 @@ module.exports = (router) => {
             let resp;
             try {
 
+                console.log('Getting royalty data');
+
                 let userId = req.user.id;
                 let { start, end } = req.query;
+
+                console.log(start, end)
 
                 let user = await db.users.findOne({ _id: userId }).lean();
 
@@ -27,19 +31,20 @@ module.exports = (router) => {
                         count: 0
                     };
 
-                    start = moment(start || moment()).subtract(7, 'd').startOf('day').unix()
+                    start = moment(start || moment().subtract(7, 'd')).startOf('day').unix()
                     end = moment(end || moment()).endOf('day').unix()
 
                     let sales = await db.transactions.find({
                         firstCreatorAddress: collection.firstCreatorAddress,
-                        //blocktime: { $gte: start, $lte: end }
-                    }).sort({ blocktime: -1 }).limit(50);
+                        blocktime: { $gte: start, $lte: end }
+                    }).sort({ blocktime: -1 });
 
                     data.sales = sales;
 
                     let metrics = {
                         earnings: 0,
                         potentialEarnings: 0,
+                        regaliaEarnings: 0,
                         fulfillmentRate: 0,
                         marketplaceBreakdown: {}
                     }
@@ -49,21 +54,20 @@ module.exports = (router) => {
                         .process(async (item) => {
                             try {
                                 data.count += 1;
-                                let { royaltyPaid, royaltyAmount, royaltyPaidPercent, marketplace } = item
+                                let { royaltyPaid, royaltyAmount, royaltyPaidPercent, effectiveRoyaltyPaidPercent, effectiveRoyaltyPaid, marketplace } = item
 
-                                console.log(marketplace)
-
-                                metrics.earnings += +royaltyPaid;
+                                metrics.earnings += +effectiveRoyaltyPaid;
                                 metrics.potentialEarnings += +royaltyAmount;
-                                metrics.fulfillmentRate += (+royaltyPaidPercent >= 100 ? 1 : 0);
+                                metrics.fulfillmentRate += (+effectiveRoyaltyPaidPercent >= 100 ? 1 : 0);
+                                metrics.regaliaEarnings += +effectiveRoyaltyPaid - +royaltyPaid;
 
                                 if (!!!metrics.marketplaceBreakdown[marketplace])
                                     metrics.marketplaceBreakdown[marketplace] = {};
 
                                 metrics.marketplaceBreakdown[marketplace].count = (metrics.marketplaceBreakdown[marketplace].count || 0) + 1
-                                metrics.marketplaceBreakdown[marketplace].earnings = (metrics.marketplaceBreakdown[marketplace].earnings || 0) + +royaltyPaid;
+                                metrics.marketplaceBreakdown[marketplace].earnings = (metrics.marketplaceBreakdown[marketplace].earnings || 0) + +effectiveRoyaltyPaid;
                                 metrics.marketplaceBreakdown[marketplace].potentialEarnings = (metrics.marketplaceBreakdown[marketplace].potentialEarnings || 0) + +royaltyAmount;
-                                metrics.marketplaceBreakdown[marketplace].fulfillmentRate = (metrics.marketplaceBreakdown[marketplace].fulfillmentRate || 0) + (+royaltyPaidPercent >= 100 ? 1 : 0);
+                                metrics.marketplaceBreakdown[marketplace].fulfillmentRate = (metrics.marketplaceBreakdown[marketplace].fulfillmentRate || 0) + (+effectiveRoyaltyPaidPercent >= 100 ? 1 : 0);
                             } catch (err) {
                                 console.log(err);
                             }

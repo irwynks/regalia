@@ -1,6 +1,8 @@
 import { useGlobal, useState, useMemo } from 'reactn'; 
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
-import { Container, Navbar, Nav, Image,  } from 'react-bootstrap';
+import { Container, Navbar, Nav, Image, } from 'react-bootstrap';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import './header.scss'; 
 
 const bsf = (str, chars) => {
@@ -41,7 +43,7 @@ export const Header = () => {
                                     `https://avatars.dicebear.com/api/identicon/${user.pubkey}.svg`
                                 } rounded />
                             </div> 
-                            <div className="username">{bsf(memoified_user.pubkey, 6)}</div>
+                            <div className="username"><WalletMultiButton /></div>
                            
                         </div> 
             </Navbar.Text>

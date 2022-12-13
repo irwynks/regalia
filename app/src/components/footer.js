@@ -5,7 +5,7 @@ import './footer.scss';
 export const Footer = () => {
     return (
         <div className="footer">
-            CREATED BY IRWYNKS.
+            CREATED BY IRWYNKS
         </div>
     );
 };

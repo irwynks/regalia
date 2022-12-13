@@ -201,16 +201,22 @@ module.exports = (router) => {
                     let ok = nacl.sign.detached.verify(nonceUint8, signatureUint8, pubKeyUint8)
 
                     if (!!ok) {
-                        let found = await db.users.findOne({ pubkey }).populate('nfts');
+                        let found = await db.users.findOne({ pubkey })
+                            .populate('nfts')
 
                         if (!!!found) {
-
                             let newUser = new db.users({ pubkey });
                             found = await newUser.save();
-
+                            let slug = {
+                                action: 'userWalletNFTs',
+                                data: { pubkey }
+                            }
+                            await rclient.lpush('ingest.queue', JSON.stringify(slug));
                         };
 
                         user = found.toJSON();
+
+                        user.nfts = user.nfts.sort()
 
                         let session_id = await rclient.hget(`maps.userToSession`, user._id.toString());
                         if (!!!session_id) {
@@ -269,7 +275,7 @@ module.exports = (router) => {
                 let data = req.body;
                 let userId = req.user.id;
 
-                let user = await db.users.findOne({ _id: userId });
+                let user = await db.users.findOne({ _id: userId }).populate('nfts');
 
                 console.log(user);
                 if (data.collections)

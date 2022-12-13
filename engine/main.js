@@ -10,22 +10,6 @@ let dequeueing = false;
 let pollingTransactions = false;
 let pollingOwnedNFTs = false;
 
-cron.schedule(`* */10 * * * *`, async () => {
-    if (!pollingTransactions) {
-        pollingTransactions = true;
-        await poll.transactions()
-        pollingTransactions = false;
-    }
-}, { scheduled: true })
-
-cron.schedule(`* */5 * * * *`, async () => {
-    if (!pollingOwnedNFTs) {
-        pollingOwnedNFTs = true;
-        await poll.userWalletNFTs()
-        pollingOwnedNFTs = false;
-    }
-}, { scheduled: true })
-
 const dequeue = async () => {
     try {
         dequeueing = true;
@@ -35,7 +19,11 @@ const dequeue = async () => {
             if (!!raw) {
                 let slug = JSON.parse(raw);
                 let { action, data } = slug;
-                worker[action](data);
+                if (/userWalletNFTs/i.test(action)) {
+                    await poll[action](data.pubkey)
+                } else {
+                    await worker[action](data);
+                }
             }
         } while (!!dequeueing)
     } catch (err) {
@@ -48,6 +36,22 @@ const dequeue = async () => {
     //require('./listeners/listen.magiceden')
     cron.schedule(`*/1 * * * * *`, async () => {
         if (!dequeueing) { await dequeue() }
+    }, { scheduled: true })
+
+    cron.schedule(`* */5 * * * *`, async () => {
+        if (!!!pollingTransactions) {
+            pollingTransactions = true;
+            await poll.transactions()
+            pollingTransactions = false;
+        }
+    }, { scheduled: true })
+
+    cron.schedule(`* */3 * * * *`, async () => {
+        if (!!!pollingOwnedNFTs) {
+            pollingOwnedNFTs = true;
+            await poll.userWalletNFTs()
+            pollingOwnedNFTs = false;
+        }
     }, { scheduled: true })
 
 })()

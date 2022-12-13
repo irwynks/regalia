@@ -26,8 +26,8 @@ export const User = () => {
             for (let nft of user.nfts) {
                 !!nft.tx ? t.push(nft) : o.push(nft);
             }
-            setTracked(t);
-            setOthers(o);
+            setTracked(t.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
+            setOthers(o.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
         }
 
     }, []) 
@@ -36,11 +36,9 @@ export const User = () => {
      
         console.log(process.env.REACT_APP_ORACLE_API_KEY) 
 
-        console.log(nft);
-
         let { data } = await axios({
             method: 'post',
-            url: 'https://oracle.regalia.live/v1/royalties/generateTX',
+            url: 'https://oracle.regalia.live/v1/royalties/tx/generate',
             headers: {
                 Authorization: process.env.REACT_APP_ORACLE_API_KEY
             },
@@ -69,7 +67,7 @@ export const User = () => {
 
         let { data: processed } = await axios({
             method: 'post',
-            url: 'https://oracle.regalia.live/v1/royalties/processTX',
+            url: 'https://oracle.regalia.live/v1/royalties/tx/process',
             headers: {
                 Authorization: process.env.REACT_APP_ORACLE_API_KEY
             },
@@ -88,10 +86,11 @@ export const User = () => {
 
             <Container className="user-interface"> 
                 
-                <div className="main-title">
-                    <h4>NFTs</h4>
-                </div>
                 <div className="tracked-nfts">
+                    <div className="title">
+                        Tracked NFTs
+                    </div>
+                    <div className="nfts">
                     {tracked.map(nft => { 
                         return (
                             <div className="nft">
@@ -100,7 +99,7 @@ export const User = () => {
                                     <div className="badge"><Image width="50" src="/paid.png" title="Royalty Fulfilled" /></div>
                                     : null
                                 } 
-                                <Image src={nft.image_url} rounded/>
+                                <Image src={nft.image_url} onError="this.onerror=null;this.src='/placeholder.png';" rounded/>
                                 <div className="info"> 
                                     <div className="marketplace">{nft.tx.marketplace}</div>
                                     <div className="name">{nft.name}</div>
@@ -114,12 +113,25 @@ export const User = () => {
                             </div>
                         ) 
                     })}
+                    </div>
                 </div>
                 
                 <div className="other-nfts">
-                    <div className="title">Other NFTS</div>
+                    <div className="title">UnTracked NFTs</div>
+                    <div className="nfts">
+                        {others.map(nft => {
+                            return (
+                                <div className="nft"> 
+                                    <Image src={nft.image_url} rounded />
+                                    <div className="info"> 
+                                        <div className="name">{nft.name}</div> 
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
-                
+                <div className="bottom-spacer"></div>
             </Container>
 
         </Container>

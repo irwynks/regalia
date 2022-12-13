@@ -13,15 +13,133 @@
         margin: 0 auto;
     }
 
-    .collection .existing {
-        .text {
-            font-size: 16px;
-            font-family: 'Inconsolata';
-            font-weight: bold;
+    .collection {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center !important;
+        font-family: 'Lato';
+
+        .spacer {
+            margin-top: 0.25rem;
+            height: 15.75px;
+        }
+
+        .actions {
+            .btn {
+                position: relative;
+                top: -1px;
+            }
+        }
+
+        >div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center !important;
+            margin: 5px 10px;
+
+            .text {
+                font-size: 16px;
+                color: whitesmoke;
+            }
+
+            .title {
+                font-size: 12px;
+                color: grey;
+            }
+
+            input {
+                font-family: 'Lato';
+                font-size: 14px;
+            }
+
+            margin-bottom:20px;
         }
     }
 
 
+}
+
+.modal-title {
+
+    font-size: 16px;
+    padding-left: 10px;
+
+}
+
+.modal-body {
+
+    text-align: center;
+    font-family: 'Lato';
+    font-size: 13px;
+    font-weight: normal;
+
+
+
+    .identified {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center !important;
+
+        >div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center !important;
+            margin: 10px 20px;
+        }
+
+
+    }
+
+    .text {
+        font-size: .875em;
+        color: #ffc107;
+    }
+
+    .payers {
+        .text {
+            font-size: .875em;
+            color: #6c757d;
+
+            span {
+                font-size: 16px;
+                font-family: 'Inconsolata';
+                color: #ffc107;
+                margin: 5px;
+
+                img {
+                    cursor: pointer;
+                    height: 20px;
+                }
+            }
+        }
+
+        .wallets {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center !important;
+
+            div {
+                font-size: 16px;
+                font-family: 'Inconsolata';
+                color: #ffc107;
+            }
+        }
+    }
+
+    .explanation {
+        font-size: 13px;
+    }
+
+    .input {
+        input {
+            text-align: center;
+        }
+    }
 }
 
 .collections {

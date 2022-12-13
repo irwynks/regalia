@@ -1,6 +1,6 @@
 import { useGlobal, useState, useEffect, useMemo } from 'reactn';
 import { Outlet, Link, useNavigate } from "react-router-dom";
-import { Container, Tabs, Tab, Accordion, Form, Button, Image, Row, Col } from 'react-bootstrap';
+import { Container, Tabs, Tab, Accordion, Form, Button, Image, Row, Col, Modal } from 'react-bootstrap';
 import { useWallet } from '@solana/wallet-adapter-react'; 
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
@@ -11,12 +11,67 @@ import axios from 'axios';
 const { decodeUTF8 } = require("tweetnacl-util");
 const bs58 = require('bs58')
 
+const bsf = (str, chars) => {
+    return `${str.slice(0, chars)}...${str.slice(-1 * +chars)}`
+}
+
 export const Settings = (props) => {
 
     const wallet = useWallet();
     const navigate = useNavigate();
     let [user, setUser] = useGlobal('user');
-    let [selectedGuild, setSelectedGuild] = useGlobal('mode'); 
+    let [selectedGuild, setSelectedGuild] = useGlobal('mode');
+
+    let [pubkey, setPubkey] = useState(wallet.publicKey);
+
+    const [showSettings, setShowSettings] = useState(false); 
+    const handleCloseSettings = () => {
+        setShowSettings(false)
+        setLinking(false);
+        setCheckingLinkage(false);
+        setLinked(false);
+    };
+    const handleShowSettings = () => setShowSettings(true);
+
+    const [linking, setLinking] = useState(false);
+    const [linked, setLinked] = useState(false);
+    const [checkingLinkage, setCheckingLinkage] = useState(false);
+
+    useEffect(() => {
+        
+        console.log("LINKING UPDATED"); 
+
+        if (linking.status === 'pending_transaction') {
+            setLinked(false);
+            setCheckingLinkage(true);
+        }
+
+        if (linking.status === 'confirmed') {
+            setLinked(true);
+            setCheckingLinkage(false);
+        }
+
+    }, [linking])
+
+    useEffect(() => { 
+
+        //console.log("CHECKING LINKAGE", checkingLinkage)
+
+        let interval;
+        if (!!checkingLinkage) {
+            console.log('SETTING INTERVAL TO CHECK LINKAGE')
+            interval = setInterval(() => {
+                getLinkageStatus();
+            }, 1000);
+        } else {
+            clearInterval(interval);
+        }
+
+        return () => clearInterval(interval);
+
+    }, [checkingLinkage])
+
+    console.log(user);
 
     let [newCollection, setNewCollection] = useState({
         name: "",
@@ -25,66 +80,57 @@ export const Settings = (props) => {
         updateAuthority: "",
     });
 
-    useEffect(() => { 
-        if (!!wallet.publicKey) { connectWallet(); } 
-    }, [wallet.publicKey]);
+    const getLinkageStatus = async () => {
+        let config = {
+            method: 'get',
+            url: `https://oracle.regalia.live/v1/creator/onboard/status/${pubkey}`,
+            headers: {
+                Authorization: process.env.REACT_APP_ORACLE_API_KEY,
+            }
+        };
 
-    const connectWallet = async () => { 
+        let { data } = await axios(config);
 
-        if (!!wallet.publicKey) {
-            console.log(wallet.publicKey);
-            const pubKey = wallet.publicKey.toBase58();
-            let session_id = window.sessionStorage.getItem('session_id');
-            wallet.signMessage(decodeUTF8('abcdefhijkl')).then(async signed => {
-                console.log(signed);
-                await addWallet(bs58.encode(signed), pubKey, session_id);
-            }).catch((err) => {
-                console.error(err);
-                wallet.disconnect()
-            });
-        } else {
-            console.log('Not connected');
-        }
+        console.log(data);
+
+        if (!!data.success && !!data.data.status) { 
+                setLinking(data.data); 
+        } 
+    }
+
+    const initiateLinking = async (mintAddress) => { 
+        let config = {
+            method: 'post',
+            url: `https://oracle.regalia.live/v1/creator/onboard`,
+            headers: {
+                Authorization: process.env.REACT_APP_ORACLE_API_KEY,
+            },
+            data: { pubkey, mintAddress }
+        };
+
+        let { data } = await axios(config); 
+
+        if(!!data.success)
+            setLinking(data.data);
 
     }
 
-    const addWallet = async (signature, wallet, session_id) => {
-        try { 
-
-            let config = {
-                method: 'post',
-                url: `https://regalia.live/v1/user/add-wallet`,
-                data: { signature, wallet, session_id }
-            }
-
-            let { data } = await axios(config);
-
-            console.log(data);
-
-            if (data.success) {
-                let updated = { ...user, ...data.data }
-                setUser(updated);
-            }
-
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    const editNewCollection = (e) => { 
+    const editCollection = (e, firstCreatorAddress) => { 
         let key = e.target.id;
         let val = e.target.value; 
-        let update = { ...newCollection, [key]: val } 
-        setNewCollection(update)
+        if (key === 'vault') { key = 'vaults'; val = [val]; } 
+        let collections = [...user.collections]; 
+        let index = collections.findIndex(i => i.firstCreatorAddress === firstCreatorAddress);
+        collections[index][key] = val; 
+        let update = { ...user, collections } 
+        setUser(update)
     }
 
-    const addCollection = async () => {
+    const updateCollections = async () => {
         
         try {
             console.log('Adding new collection')
-            let session_id = window.localStorage.getItem('session');
-
-            user.collections = [...user.collections, newCollection];
+            let session_id = window.localStorage.getItem('session'); 
 
             let config = {
                 method: 'put',
@@ -95,16 +141,8 @@ export const Settings = (props) => {
                 data: { collections: user.collections }
             };
 
-            let {data} = await axios(config); 
-            
-            console.log(data); 
+            let { data } = await axios(config); 
 
-            setNewCollection({
-                name: "",
-                firstCreatorAddress: "",
-                symbol: "",
-                updateAuthority: "",
-            })
             setUser(data.data); 
 
         } catch (err) {
@@ -140,76 +178,56 @@ export const Settings = (props) => {
 
             <Accordion defaultActiveKey={['0', '1', '2', '3']} flush alwaysOpen>
                 <Accordion.Item eventKey="0" >
-                    <Accordion.Header>Collections</Accordion.Header>
+                    <Accordion.Header>Linked Collections</Accordion.Header>
                     <Accordion.Body>
                         <div className="collections">
-                            {user.collections.map((collection, i) => {
-                                
+                            {user.collections.map((collection, i) => { 
                                 return (
-                                    <div className="collection" key={i}>
-                                        
-                                        <Row className="mb-3 existing">
-                                            <Col xs={2}>
-                                                <Form.Label>Name</Form.Label>
-                                                <div className="text" size="sm" type="text" id="name" placeholder="Name" >{collection.name}</div>
-                                            </Col>
-                                            <Col xs={4}>
-                                                <Form.Label>FCA</Form.Label>
-                                                <div className="text" size="sm" type="text" id="firstCreatorAddress" placeholder="FCA" >{collection.firstCreatorAddress}</div>
-                                            </Col>
-                                            <Col xs={1}>
-                                                <Form.Label>Symbol</Form.Label>
-                                                <div className="text" size="sm" type="text" id="symbol" >{collection.symbol}</div>
-                                            </Col>
-                                            <Col xs={4}>
-                                                <Form.Label>Update Authority</Form.Label>
-                                                <div className="text" size="sm" type="text" id="updateAuthority" placeholder="Update Authority" >{collection.updateAuthority}</div>
-                                            </Col>
-                                            <Col>
-                                                <div className="collection-actions">
-                                                    <Button variant="outline-danger" id={i} onClick={(e) => {
-                                                        let index = e.target.id;
-                                                        let update = { ...user }; 
-                                                        update.collections.splice(index, 1);
-                                                        setUser(update);
-                                                        updateUser(update)
-                                                    }}>
-                                                    DEL
-                                                    </Button>
-                                                </div>
-                                            </Col>
-                                        </Row> 
-
+                                    <div className="collection" key={i}> 
+                                        <div>
+                                            <div className="title">SYMBOL</div>
+                                            <div className="text">{collection.symbol}</div>
+                                            <div className="spacer"></div>
+                                        </div>
+                                        <div>
+                                            <div className="title">FIRST CREATOR ADDRESS</div>
+                                            <div className="text">{bsf(collection.firstCreatorAddress, 8)}</div>
+                                            <div className="spacer"></div>
+                                        </div>
+                                        <div>
+                                            <div className="title">UPDATE AUTHORITY</div>
+                                            <div className="text">{bsf(collection.updateAuthority, 8)}</div>
+                                            <div className="spacer"></div>
+                                        </div>
+                                        <div>
+                                            <div className="title">NAME</div>
+                                            <Form.Control size="sm" style={{ width: "140" }} type="text" id="name" placeholder="Name" value={collection.name} onChange={(e) => { editCollection(e, collection.firstCreatorAddress) }} /> 
+                                            <div className="spacer"></div>
+                                        </div>
+                                        <div>
+                                            <div className="title">VAULT</div>
+                                            <Form.Control size="sm" style={{ width: "255px" }} type="text" id="vault" placeholder="Vault" value={collection.vaults[0]} onChange={(e) => { editCollection(e, collection.firstCreatorAddress) }} />
+                                            <Form.Text className="text-muted">
+                                                Wallet for royalty payments
+                                            </Form.Text>
+                                        </div>
+                                        <div>
+                                            <div className="title">WEBHOOK URL</div>
+                                            <Form.Control size="sm" style={{ width: "255px" }} type="text" id="webhook_url" placeholder="URL" value={collection.webhook_url} onChange={(e) => { editCollection(e, collection.firstCreatorAddress) }} />
+                                            <Form.Text className="text-muted">
+                                               Event postbacks
+                                            </Form.Text>
+                                        </div>
+                                        <div className="actions">
+                                            <div></div>
+                                            <Button variant="outline-primary" size="sm" onClick={()=>{updateCollections()}}>UPDATE</Button>
+                                        </div>
                                     </div>
                                 ) 
+                            })}
 
-                            })} 
+                            <Button variant="warning" style={{ margin: '0 auto', display: 'block' }} onClick={handleShowSettings}>Link Collection</Button>
 
-                            <Row className="mb-3">
-                                <Col xs={2}>
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control size="sm" type="text" id="name" placeholder="Name" value={newCollection.name} onChange={(e) => { editNewCollection(e) }} />
-                                </Col>
-                                <Col xs={4}>
-                                    <Form.Label>FCA</Form.Label>
-                                    <Form.Control size="sm" type="text" id="firstCreatorAddress" placeholder="FCA" value={newCollection.firstCreatorAddress} onChange={(e) => { editNewCollection(e) }} />
-                                </Col>
-                                <Col xs={1}>
-                                    <Form.Label>Symbol</Form.Label>
-                                    <Form.Control size="sm" type="text" id="symbol" value={newCollection.symbol} onChange={(e) => { editNewCollection(e) }} />
-                                </Col>
-                                <Col xs={4}>
-                                    <Form.Label>Update Authority</Form.Label>
-                                    <Form.Control size="sm" type="text" id="updateAuthority" placeholder="Update Authority" value={newCollection.updateAuthority} onChange={(e) => {editNewCollection(e)}} />
-                                </Col> 
-                                <Col>
-                                    <div className="collection-actions">
-                                        <Button variant="outline-success" onClick={()=>{ addCollection()}}>
-                                        ADD
-                                    </Button>
-                                    </div>
-                                </Col>
-                            </Row> 
 
                         </div>
                     </Accordion.Body>
@@ -252,7 +270,99 @@ export const Settings = (props) => {
                         culpa qui officia deserunt mollit anim id est laborum.
                     </Accordion.Body>
                 </Accordion.Item>
-            </Accordion>
+            </Accordion> 
+
+            <Modal className="modal link-collection" size='lg' centered show={showSettings} onHide={handleCloseSettings}>
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        LINK COLLECTION
+                    </Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="explanation">
+                    </div>
+                    <div className="input">
+                        <Row className="justify-content-center">
+
+                            {!!linked ?
+                                <div>
+                                    <div className='text'>
+                                        COLLECTION HAS BEEN LINKED TO YOUR ACCOUNT
+                                    </div>
+                                    <div className="identified">
+                                        <div>
+                                            <Form.Text className="">SYMBOL</Form.Text>
+                                            <Form.Label>{linking.symbol}</Form.Label>
+                                        </div>
+                                        <div>
+                                            <Form.Text className="">FIRST CREATOR ADDRESS</Form.Text>
+                                            <Form.Label>{bsf(linking.firstCreatorAddress, 8)}</Form.Label>
+                                        </div>
+                                        <div>
+                                            <Form.Text className="">UPDATE AUTHORITY</Form.Text>
+                                            <Form.Label>{bsf(linking.updateAuthority, 8)}</Form.Label>
+                                        </div>
+                                    </div> 
+                                </div> 
+                                : !!linking ? 
+                                <div className="linking">
+                                    <div className="identified"> 
+                                        <div>
+                                            <Form.Text className="">SYMBOL</Form.Text>
+                                            <Form.Label>{linking.symbol}</Form.Label>
+                                        </div>
+                                        <div>
+                                            <Form.Text className="">FIRST CREATOR ADDRESS</Form.Text>
+                                            <Form.Label>{bsf(linking.firstCreatorAddress, 8)}</Form.Label>
+                                        </div>
+                                        <div>
+                                            <Form.Text className="">UPDATE AUTHORITY</Form.Text>
+                                            <Form.Label>{bsf(linking.updateAuthority, 8)}</Form.Label>
+                                        </div>
+                                    </div>
+                                    <div className="payers">
+                                        <div className="text">AWAITING TRANSFER OF<br /><span>{linking.amount}SOL</span>
+                                            <br />TO<br />
+                                            <span>oRACLFPN2PUwHD8QVF1wyiVygUSkijSypNeKmsLZQ9R
+                                                <img onClick={() => { navigator.clipboard.writeText('oRACLFPN2PUwHD8QVF1wyiVygUSkijSypNeKmsLZQ9R') }} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAAdklEQVRYhe2VSwrAIAxE09J9L9TjeyFPoNtSgphPnRbmLRXicwxRhBAwm7ZYi7Ro4fPSaz/ZowdFOUabs7e4Y03v2wl4sKY2LfBWY/7vCbIbE54ABShAgaFALdIyJqBbYAXqJPRMOy/wBOAC5s8ouynhCRACpwPfGhTsZuiA3wAAAABJRU5ErkJggg==" alt="copy"/>
+                                            </span>
+                                            <br />FROM</div>
+                                        <div className="wallets">
+                                            {linking.payer_wallets.map(wallet => {
+                                                return <div>{bsf(wallet, 5)}</div>
+                                            })}
+                                        </div>
+                                    </div>
+                                </div> : 
+                            <Col xs={8}>
+                                <Form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.target); 
+                                    let data = Object.fromEntries(formData.entries());
+                                    console.log(data);
+                                    initiateLinking(data.mintAddress)
+                                }}>
+                                    <Form.Group className="mb-3" controlId="notificationWebhook">
+                                        <Form.Label>NFT Mint Address</Form.Label>
+                                        <Form.Control size="sm" type="text" name="mintAddress"/>
+                                        <Form.Text className="text-muted">
+                                            Provide the mint address of a NFT in the collection you wish to add.
+                                        </Form.Text>
+                                    </Form.Group> 
+                                    <Button variant="outline-warning" type="submit">Link</Button>
+                                </Form> 
+                                </Col> 
+                            }
+                            </Row>
+                    </div> 
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseSettings}>Close</Button>
+                    <Button variant="warning" onClick={handleCloseSettings}>Done</Button>
+                </Modal.Footer>
+            </Modal>
 
         </Container>
     );

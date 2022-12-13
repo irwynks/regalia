@@ -95,7 +95,10 @@ button.btn {
   font-size: 12px !important;
   text-transform: uppercase !important;
   //font-weight: bold;
+  border-radius: 4px;
+  padding: 10px 20px;
   border: none;
+  font-weight: bold;
 }
 
 .wallet-adapter-dropdown {
@@ -134,4 +137,93 @@ button.btn {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: whitesmoke !important;
+  pointer-events: auto;
+  background-color: #111110 !important;
+  background-clip: padding-box;
+  border: solid 1px #f5f5f51c !important;
+  border-radius: 4px;
+  outline: 0;
+  font-family: 'Rubik';
+
+  .btn-close {
+    background: transparent url("data:image/svg+xml,%3Csvg style='color: white' xmlns='http://www.w3.org/2000/svg' version='1.1' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5'%3E%3Cpath d='m10.25 5.75-4.5 4.5m0-4.5 4.5 4.5' fill='white'%3E%3C/path%3E%3Ccircle cx='8' cy='8' r='6.25'%3E%3C/circle%3E%3C/svg%3E") center/1em auto no-repeat;
+
+    &:focus {
+      box-shadow: none !important;
+    }
+  }
+}
+
+.modal-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--bs-modal-header-padding);
+  border-bottom: solid 1px #f5f5f51c !important;
+  border-top-left-radius: var(--bs-modal-inner-border-radius);
+  border-top-right-radius: var(--bs-modal-inner-border-radius);
+}
+
+.modal-footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: calc(var(--bs-modal-padding) - var(--bs-modal-footer-gap) * .5);
+  background-color: var(--bs-modal-footer-bg);
+  border-top: solid 1px #f5f5f51c !important;
+  border-bottom-right-radius: var(--bs-modal-inner-border-radius);
+  border-bottom-left-radius: var(--bs-modal-inner-border-radius);
+}
+
+a {
+  color: whitesmoke !important;
+  text-align: center;
+
+  &:hover {
+    color: #ffc107 !important;
+  }
+
+  &:visited {
+    &:hover {
+      color: #ffc107 !important;
+    }
+
+    color: whitesmoke !important;
+  }
+}
+
+.popover-body {
+  background-color: #111110 !important;
+  border-radius: 4px !important;
+  padding: 20px !important;
+  color: whitesmoke !important;
+}
+
+.bs-popover-end>.popover-arrow::after {
+  border-right-color: #111110 !important;
+}
+
+.rotate {
+  animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
 }
