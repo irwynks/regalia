@@ -137,7 +137,7 @@ export const User = () => {
             let { data } = await axios(config); 
 
             if (!!data.success && !!data.data) { 
-                setUser({ ...user })
+                setUser({ ...data.data })
             }
         } catch (err) {
             console.log(err);
