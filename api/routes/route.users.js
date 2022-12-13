@@ -215,8 +215,15 @@ module.exports = (router) => {
                         };
 
                         user = found.toJSON();
-
                         user.nfts = user.nfts.sort()
+
+                        let collections = await db.collections.find({}, { firstCreatorAddress: 1 }).lean()
+                        collections = collections.map(i => i.firstCreatorAddress);
+                        user.nfts = user.nfts.map(n => {
+                            n.tracked = collections.includes(n.firstCreatorAddress) && !!n.tx;
+                            return n;
+                        })
+
 
                         let session_id = await rclient.hget(`maps.userToSession`, user._id.toString());
                         if (!!!session_id) {
@@ -265,7 +272,50 @@ module.exports = (router) => {
         })
 
     router.route(`/v1/user`)
-        .get(async (req, res) => {
+        .get(mdl.authUser, async (req, res) => {
+
+            let resp;
+            try {
+
+                let userId = req.user.id;
+
+                console.log(userId);
+
+                let user = await db.users.findOne({ _id: userId }).populate('nfts');
+
+                if (!!user) {
+
+                    let collections = await db.collections.find({}, { firstCreatorAddress: 1 }).lean()
+                    collections = collections.map(i => i.firstCreatorAddress);
+                    user.nfts = user.nfts.map(n => {
+                        n.tracked = collections.includes(n.firstCreatorAddress) && !!n.tx;;
+                        return n;
+                    })
+
+                    resp = {
+                        success: true,
+                        message: 'User retrieved.',
+                        data: user.toJSON()
+                    }
+
+                } else {
+                    resp = {
+                        success: false,
+                        message: 'Could not find user.',
+                        data: {}
+                    }
+                }
+
+            } catch (err) {
+                console.log(err);
+                resp = {
+                    success: false,
+                    message: 'An error occurred.',
+                    data: {}
+                }
+            } finally {
+                res.status(200).send(resp)
+            }
 
         })
         .put(mdl.authUser, async (req, res) => {
@@ -275,7 +325,7 @@ module.exports = (router) => {
                 let data = req.body;
                 let userId = req.user.id;
 
-                let user = await db.users.findOne({ _id: userId }).populate('nfts');
+                let user = await db.users.findOne({ _id: userId })
 
                 console.log(user);
                 if (data.collections)
@@ -283,6 +333,14 @@ module.exports = (router) => {
 
                 for (let [key, val] of Object.entries(data)) {
                     user.set(key, val);
+                }
+
+                for (let collection of data.collections) {
+                    let c = await db.collections.findOne({ firstCreatorAddress: collection.firstCreatorAddress })
+                    for (let [key, val] of Object.entries(collection)) {
+                        c.set(key, val);
+                    }
+                    await c.save();
                 }
 
                 console.error(data);
@@ -310,12 +368,22 @@ module.exports = (router) => {
                 };
 
                 let saved = await user.save();
-                console.error(saved);
+
+                await saved.populate('nfts');
+
+                user = await db.users.findOne({ _id: userId }).populate('nfts');
+
+                let collections = await db.collections.find({}, { firstCreatorAddress: 1 }).lean()
+                collections = collections.map(i => i.firstCreatorAddress);
+                user.nfts = user.nfts.map(n => {
+                    n.tracked = collections.includes(n.firstCreatorAddress) && !!n.tx;;
+                    return n;
+                })
 
                 resp = {
                     success: true,
                     message: 'User updated.',
-                    data: saved.toJSON()
+                    data: user.toJSON()
                 }
 
             } catch (err) {
@@ -330,7 +398,6 @@ module.exports = (router) => {
             }
 
         })
-        .get(async (req, res) => { })
 
 
     router.route(`/v1/user/add-wallet`)

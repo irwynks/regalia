@@ -16,6 +16,22 @@ export const User = () => {
     let [mode, setMode] = useGlobal('mode');
     let [tracked, setTracked] = useState([])
     let [others, setOthers] = useState([])
+    let [mintAddress, setMintAddress] = useState(false)
+
+    useEffect(() => {
+        
+        let interval;
+        if (!!mintAddress) { 
+            interval = setInterval(() => {
+                getPaymentStatus();
+            }, 1000);
+        } else {
+            clearInterval(interval);
+        }
+
+        return () => clearInterval(interval);
+
+    }, [mintAddress]);
 
     useEffect(() => {
         setMode('user');
@@ -24,61 +40,108 @@ export const User = () => {
             let t = [];
             let o = [];
             for (let nft of user.nfts) {
-                !!nft.tx ? t.push(nft) : o.push(nft);
+                !!nft.tracked ? t.push(nft) : o.push(nft);
             }
             setTracked(t.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
             setOthers(o.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
         }
 
+        let interval = setInterval(() => {
+                refresh();
+            }, 2000);
+
+        return () => clearInterval(interval); 
     }, []) 
 
-    const payRoyalty = async (nft) => {
-     
-        console.log(process.env.REACT_APP_ORACLE_API_KEY) 
+    const payRoyalty = async (nft) => { 
 
-        let { data } = await axios({
-            method: 'post',
-            url: 'https://oracle.regalia.live/v1/royalties/tx/generate',
+        try {
+            let { data } = await axios({
+                method: 'post',
+                url: 'https://oracle.regalia.live/v1/royalties/tx/generate',
+                headers: {
+                    Authorization: user.apikey
+                },
+                data: {
+                    pubkey: user.pubkey,
+                    mintAddress: nft.mintAddress
+                }
+            })
+
+            let { transaction } = data.data;
+
+            let message = Message.from(transaction.data)
+            let tx = Transaction.populate(message)
+
+            const {
+                context: { slot: minContextSlot },
+                value: { blockhash, lastValidBlockHeight }
+            } = await connection.getLatestBlockhashAndContext();
+
+            const signature = await wallet.sendTransaction(tx, connection, { minContextSlot });
+
+            let confirmed = await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature }); 
+
+            let { data: processed } = await axios({
+                method: 'post',
+                url: 'https://oracle.regalia.live/v1/royalties/tx/process',
+                headers: {
+                    Authorization: user.apikey
+                },
+                data: {
+                    signature,
+                    mintAddress: nft.mintAddress
+                }
+            })
+
+        } catch (err) {
+            console.log(err)
+        } finally {
+            setMintAddress(nft.mintAddress);
+        }
+
+    }
+
+    const getPaymentStatus = async () => {
+        let config = {
+            method: 'get',
+            url: `https://oracle.regalia.live/v1/royalties/nft/status?mintAddress=${mintAddress}`,
             headers: {
-                Authorization: process.env.REACT_APP_ORACLE_API_KEY
-            },
-            data: {
-                pubkey: user.pubkey,
-                mintAddress:nft.mintAddress
+                Authorization: user.apikey,
             }
-        }) 
+        };
 
-        let { transaction } = data.data; 
+        let { data } = await axios(config); 
 
-        let message =  Message.from(transaction.data)
-        let tx = Transaction.populate(message)
+        console.log('Getting payment status');
 
-        const {
-            context: { slot: minContextSlot },
-            value: { blockhash, lastValidBlockHeight }
-        } = await connection.getLatestBlockhashAndContext();
+        if (!!data.success && !!data.data.tx.fulfilled) {
+            refresh()
+            setMintAddress(false);
+        }
+    }
 
-        const signature = await wallet.sendTransaction(tx, connection, { minContextSlot }); 
+    const refresh = async () => {
 
-        let confirmed = await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature });
+        try {
+            let session_id = window.localStorage.getItem('session');
 
-        console.log(signature); 
-        console.log(confirmed);
+            let config = {
+                method: 'get',
+                url: `https://api.regalia.live/v1/user`,
+                headers: {
+                    Authorization: session_id,
+                }
+            };
 
-        let { data: processed } = await axios({
-            method: 'post',
-            url: 'https://oracle.regalia.live/v1/royalties/tx/process',
-            headers: {
-                Authorization: process.env.REACT_APP_ORACLE_API_KEY
-            },
-            data: {
-                signature,
-                mintAddress: nft.mintAddress
+            let { data } = await axios(config); 
+
+            if (!!data.success && !!data.data) { 
+                setUser({ ...user })
             }
-        }) 
-
-        console.log(processed.data); 
-
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     return (
@@ -91,20 +154,23 @@ export const User = () => {
                         Tracked NFTs
                     </div>
                     <div className="nfts">
-                    {tracked.map(nft => { 
+                        {tracked.map(nft => { 
+                        
+                            console.log(nft);
+                            
                         return (
                             <div className="nft">
                                
-                                {!!nft.tx.fulfilled ? 
+                                {!!nft.tx?.fulfilled ? 
                                     <div className="badge"><Image width="50" src="/paid.png" title="Royalty Fulfilled" /></div>
                                     : null
                                 } 
                                 <Image src={nft.image_url} onError="this.onerror=null;this.src='/placeholder.png';" rounded/>
                                 <div className="info"> 
                                     <div className="marketplace">{nft.tx.marketplace}</div>
-                                    <div className="name">{nft.name}</div>
+                                    <a className="name" href={`https://solscan.io/token/${nft.mintAddress}`} target="_blank" rel="noreferrer">{nft.name}</a>
                                     <div className="price">{nft.tx.saleAmount}◎</div>
-                                    <div className="royalty-fee">FEE: {nft.tx.royaltyAmount}◎
+                                    <div className="royalty-fee">FEE: {(nft.tx?.royaltyAmount||0).toFixed(3)}◎
                                         {!!nft.tx.fulfilled ?
                                             <span className="paid">Royalty Paid</span> : <span className="unpaid" onClick={() => { payRoyalty(nft) }}>Pay Royalty</span>
                                         }

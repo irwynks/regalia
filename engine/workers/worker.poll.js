@@ -137,7 +137,8 @@ module.exports = {
 
                                     let { currentOwner: buyer } = nft;
                                     let [transaction] = await db.transactions.find({ buyer, mintAddress }).sort({ blocktime: -1 }).limit(1).lean();
-
+                                    if (!!!transaction)
+                                        transaction = await getTransactionData(nft.mintAddress);
                                     nft.tx = !!transaction ? transaction : null;
 
                                     if (!!found) {
@@ -145,13 +146,7 @@ module.exports = {
                                             found.set(key, val);
                                         }
                                         await found.save();
-
                                     } else {
-
-                                        //Find tx for this NFT if it hasn't been found.
-                                        let tx = await getTransactionData(nft.mintAddress);
-                                        nft.tx = !!tx ? tx : null;
-
                                         let newNFT = new db.nfts(nft);
                                         found = await newNFT.save()
                                     }
@@ -189,7 +184,7 @@ module.exports = {
 
 }
 
-const getTransactionData = async () => {
+const getTransactionData = async (mintAddress) => {
     //Get last logged sale and build request using symbol and update authority
     let [lastLogged] = await db.transactions.find({ mintAddress }).sort({ blocktime: -1 }).limit(1).lean()
 

@@ -46,7 +46,8 @@ export const Settings = (props) => {
             setCheckingLinkage(true);
         }
 
-        if (linking.status === 'confirmed') {
+        if (linking.status === 'confirmed') { 
+            refresh();
             setLinked(true);
             setCheckingLinkage(false);
         }
@@ -69,7 +70,7 @@ export const Settings = (props) => {
 
         return () => clearInterval(interval);
 
-    }, [checkingLinkage])
+    }, [checkingLinkage]) 
 
     console.log(user);
 
@@ -85,7 +86,7 @@ export const Settings = (props) => {
             method: 'get',
             url: `https://oracle.regalia.live/v1/creator/onboard/status/${pubkey}`,
             headers: {
-                Authorization: process.env.REACT_APP_ORACLE_API_KEY,
+                Authorization: user.apikey,
             }
         };
 
@@ -103,7 +104,7 @@ export const Settings = (props) => {
             method: 'post',
             url: `https://oracle.regalia.live/v1/creator/onboard`,
             headers: {
-                Authorization: process.env.REACT_APP_ORACLE_API_KEY,
+                Authorization: user.apikey,
             },
             data: { pubkey, mintAddress }
         };
@@ -126,6 +127,32 @@ export const Settings = (props) => {
         setUser(update)
     }
 
+    const refresh = async () => {
+
+        try {
+            let session_id = window.localStorage.getItem('session');
+
+            let config = {
+                method: 'get',
+                url: `https://api.regalia.live/v1/user`,
+                headers: {
+                    Authorization: session_id,
+                }
+            };
+
+            let { data } = await axios(config); 
+
+            if (!!data.success && !!data.data) {
+                let { collections, authorizedCollections } = data.data;
+                let update = { ...user, collections, authorizedCollections }
+                console.log(update)
+                setUser(update)
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const updateCollections = async () => {
         
         try {
@@ -143,7 +170,7 @@ export const Settings = (props) => {
 
             let { data } = await axios(config); 
 
-            setUser(data.data); 
+            setUser({...user, collections:data.data.collections}); 
 
         } catch (err) {
             console.log(err);
@@ -181,7 +208,7 @@ export const Settings = (props) => {
                     <Accordion.Header>Linked Collections</Accordion.Header>
                     <Accordion.Body>
                         <div className="collections">
-                            {user.collections.map((collection, i) => { 
+                            {(user.collections || []).map((collection, i) => { 
                                 return (
                                     <div className="collection" key={i}> 
                                         <div>
@@ -233,7 +260,7 @@ export const Settings = (props) => {
                     </Accordion.Body>
                 </Accordion.Item> 
                 <Accordion.Item eventKey="1" >
-                    <Accordion.Header>Discord Server</Accordion.Header>
+                    <Accordion.Header>Discord Integration</Accordion.Header>
                     <Accordion.Body>
                         <Form>
                             <Form.Group className="mb-3" controlId="notificationWebhook">
@@ -245,31 +272,24 @@ export const Settings = (props) => {
                             </Form.Group> 
                         </Form> 
                     </Accordion.Body>
-                </Accordion.Item>
+                </Accordion.Item> 
                 <Accordion.Item eventKey="2" >
-                    <Accordion.Header>Collections</Accordion.Header>
-                    <Accordion.Body>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt mollit anim id est laborum.
+                    <Accordion.Header>Oracle API</Accordion.Header>
+                    <Accordion.Body> 
+                        <div className="api">
+                            <div>
+                                <div className="title">POSTMAN API DOCS</div>
+                                <a className="text" href="https://documenter.getpostman.com/view/19486091/2s8YzUwMBb" target="__blank">https://documenter.getpostman.com/view/19486091/2s8YzUwMBb</a>
+                                <div className="spacer"></div>
+                            </div>
+                            <div>
+                            <div className="title">API KEY</div>
+                            <div className="text">{user.apikey}</div>
+                                <div className="spacer"></div>
+                            </div>
+                        </div>
                     </Accordion.Body>
-                </Accordion.Item>
-                <Accordion.Item eventKey="3" >
-                    <Accordion.Header>Royalty Management</Accordion.Header>
-                    <Accordion.Body>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt mollit anim id est laborum.
-                    </Accordion.Body>
-                </Accordion.Item>
+                </Accordion.Item> 
             </Accordion> 
 
             <Modal className="modal link-collection" size='lg' centered show={showSettings} onHide={handleCloseSettings}>

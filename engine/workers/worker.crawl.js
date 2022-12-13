@@ -21,35 +21,40 @@ module.exports = {
             //Get hashlist. 
             let mintAddresses = await solana.getHashlist(address);
             //Scrape hashes. 
-            await PromisePool.withConcurrency(10)
+            await PromisePool.withConcurrency(5)
                 .for(mintAddresses)
                 .process(async (mintAddress) => {
 
                     let success = false;
-                    while (!success) {
+                    while (!!!success) {
                         try {
+                            console.log("GETTING FROM HELIUS")
                             let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=finalized&type=NFT_SALE`
 
                             let { data } = await axios({ url, method: 'get' })
 
-                            for (let item of data) {
-                                let hash = item.signature;
-                                let exists = await db.transactions.exists({ hash });
+                            if (!!data.length) {
+                                for (let item of data) {
+                                    let hash = item.signature;
+                                    let exists = await db.transactions.exists({ hash });
 
-                                if (!!!exists) {
-                                    let parsed = await parser.parseTransactionsHelius(item);
-                                    let tx = new Transaction({ parsed })
-                                    await tx.save()
-                                } else {
-                                    console.log('Transaction already logged.')
+                                    if (!!!exists) {
+                                        let parsed = await parser.parseTransactionsHelius(item);
+                                        let tx = new Transaction({ parsed })
+                                        await tx.save()
+                                    } else {
+                                        console.log('Transaction already logged.')
+                                    }
                                 }
+                            } else {
+                                console.log('No new transactions for', mintAddress);
                             }
 
                             success = true;
                             await wait(100);
 
                         } catch (err) {
-                            console.log(err.code);
+                            console.log(err);
                             success = false;
                             await wait(1000);
                         }

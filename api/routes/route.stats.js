@@ -112,4 +112,73 @@ module.exports = (router) => {
             }
 
         })
+
+    router.route(`/v1/stats/community/by-user`)
+        .get(mdl.authUser, async (req, res) => {
+            let resp;
+            try {
+
+                console.log('Getting community data');
+
+                let userId = req.user.id;
+                let { start, end } = req.query;
+
+
+
+                let user = await db.users.findOne({ _id: userId }).lean();
+
+                console.log(user);
+
+                let collection = user.collections[0];
+
+                console.log(collection);
+
+                if (!!collection) {
+
+                    let { firstCreatorAddress } = collection
+
+                    start = moment(start || moment().subtract(7, 'd')).startOf('day').unix()
+                    end = moment(end || moment()).endOf('day').unix()
+
+                    console.log(userId, start, end)
+
+                    let sales = await db.transactions.aggregate([
+                        { $match: { firstCreatorAddress, blocktime: { $gte: start + "", $lte: end + "" } } },
+                        { $group: { _id: "$buyer", nfts: { $push: '$mintAddress' }, purchases: { $push: "$$ROOT" } } },
+                    ])
+
+                    let withRoyaltiesPaid = {
+                    }
+
+                    console.log(sales);
+
+                    resp = {
+                        success: true,
+                        message: 'Collection stats retrieved.',
+                        data: sales
+                    }
+
+                } else {
+
+                    resp = {
+                        success: true,
+                        message: 'Collection stats retrieved.',
+                        data: {}
+                    }
+
+                }
+
+
+            } catch (err) {
+                console.log(err)
+                resp = {
+                    success: false,
+                    message: err,
+                    data: {}
+                }
+            } finally {
+                res.status(200).send(resp)
+            }
+
+        })
 }

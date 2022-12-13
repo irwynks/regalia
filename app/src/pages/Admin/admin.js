@@ -31,11 +31,11 @@ export const Admin = () => {
                 <Tabs activeKey={activeKey} onSelect={(k) => setKey(k)} className="mb-3" fill >
                         <Tab eventKey="overview" title="Royalty Stats">
                             <Overview />
-                        </Tab> 
-                        <Tab eventKey="community" title="Community Stats">
-                            <Community />
+                    </Tab> 
+                    <Tab eventKey="community" title="Community Management">
+                        <Community />
                     </Tab>
-                        <Tab eventKey="sentinel" title="Sentinel">
+                        <Tab eventKey="sentinel" title="Discord Integration">
                             <Community />
                         </Tab>
                         <Tab eventKey="settings" title="Settings">

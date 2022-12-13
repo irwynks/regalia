@@ -81,7 +81,7 @@ export const Community = (props) => {
             let session_id = window.localStorage.getItem('session');
             let config = {
                 method: 'get',
-                url: `https://api.regalia.live/v1/stats/community/by-collection`,
+                url: `https://api.regalia.live/v1/stats/community/by-user`,
                 headers: {
                     Authorization: session_id
                 }
@@ -90,6 +90,8 @@ export const Community = (props) => {
             let { data } = await axios(config);
 
             setCommunityData(data.data); 
+
+            console.log(data.data);
 
             firing = false;
 
@@ -114,20 +116,8 @@ export const Community = (props) => {
     return (
         <Container className="overview-container" fluid>
 
-            {!!user.collections.length ?
-
-                !!communityData?.count ?
-                    <div className="stats">
-                        <div className="metrics-container"> 
-                        </div>
-                        <div className="holders-container"> 
-                        </div>
-                        <div className="bottom-spacer"></div>
-                    </div>
-                    : null
-                :
-                <div className="cta"><span onClick={() => { console.log('settings'); setKey('settings') }}>ADD A COLLECTION</span> TO GET STARTED</div>
-            }
+                <div className="cta">COMING SOON</div>
+       
 
         </Container>
     );

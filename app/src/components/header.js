@@ -1,4 +1,4 @@
-import { useGlobal, useState, useMemo } from 'reactn'; 
+import { useGlobal, useState, useMemo, useEffect } from 'reactn'; 
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import { Container, Navbar, Nav, Image, } from 'react-bootstrap';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -11,12 +11,26 @@ const bsf = (str, chars) => {
 
 export const Header = () => {
 
+    const wallet = useWallet();
     const navigate = useNavigate();
 
     let [user, setUser] = useGlobal('user');
+    let [session, setSession] = useGlobal('session');
     let [mode] = useGlobal('mode');
 
     let memoified_user = useMemo(() => user, [user]); 
+
+    useEffect(() => {
+        
+        console.log(wallet);
+
+        if (!!!wallet.connected) { 
+            setSession(false)
+            window.localStorage.removeItem('session');
+            setUser(false);
+        }
+
+    }, [wallet.connected])
 
     return ( 
         <Navbar className="header"> 

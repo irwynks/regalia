@@ -281,7 +281,7 @@ export const Overview = (props) => {
                     </div>
                     :null
                 :
-                <div className="cta"><span onClick={() => { console.log('settings'); setKey('settings')}}>ADD A COLLECTION</span> TO GET STARTED</div>
+                <div className="cta"><span onClick={() => { console.log('settings'); setKey('settings')}}>LINK A COLLECTION</span> TO GET STARTED</div>
             }
 
         </Container>
