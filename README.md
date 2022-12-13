@@ -1,4 +1,4 @@
-![Regalia Logo](https://i.imgur.com/9Bp9Irol.png){: .center-image }
+![Regalia Logo](https://i.imgur.com/9Bp9Irol.png)
 # Regalia
 ## Motivation
 Optional NFT royalties have become a reality over the past few months, and this has led to the appearance of numerous royalty enforcement/management solutions as creators find ways to revive their royalty revenue streams.
