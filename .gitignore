@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 .scripts/
-.vscode
+**/.vscode/
