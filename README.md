@@ -75,7 +75,6 @@ The next steps for Regalia are to consolidate the Oracle API and expand upon the
 
 1. Scaling API and RPC calls to the number of users and collections being watched.
 2. Moving towards an on-chain storage solution for royalty fulfillment consensus.
-3. 
 
 The major driver for the success of this project will be adoption - the more users onboarded, the greater the repository of data on post-sale royalty fulfillment, and the more robust the ecosystem.
 
