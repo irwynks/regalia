@@ -52,6 +52,8 @@ The Portal is a boilerplate implementation of Regalia Oracle, and is a full fled
 
 ![Collection Linking](https://i.imgur.com/uIOANIf.png)
 
+![Royalty Payment](https://i.imgur.com/JApBJGU.png)
+
 ![User Dashboard](https://i.imgur.com/TALGdZH.png)
 
 Check out the [demo video](https://www.youtube.com/watch?v=YZ0x8-_rNFE) or jump onto the [portal](https://regalia.live) itself for an overview of it's functionality.
