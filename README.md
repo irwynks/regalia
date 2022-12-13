@@ -3,11 +3,8 @@
 Regalia is a royalty tracking and fulfillment tool linked to the Regalia Oracle, a source of consensus framework for royalty fulfillment.
 
 Demo Video: 
-
 Regalia Portal: https://regalia.live
-
 Regalia Oracle Documentation: https://documenter.getpostman.com/view/19486091/2s8YzUwMBb
-
 ## Motivation
 Optional NFT royalties have become a reality over the past few months, and this has led to the appearance of numerous royalty enforcement/incentivization solutions as creators find ways to revive their royalty revenue streams.
 
