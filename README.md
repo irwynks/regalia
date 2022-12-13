@@ -84,12 +84,11 @@ Regalia Oracle also makes use of the **webhooks** provided by Helius to track pa
 One of the main challenges in using the Helius API was mitigating **Too Many Requests** responses, which was finally done using a basic rate limiting system and timeouts.
 
 ## The Way Forward
-The next steps for Regalia are to consolidate the Oracle API and expand upon the features it provides, as well as completing development of the Sentinel Discord bot. Challenges and considerations for future development:
+The plan moving forward is to keep building! The next steps for Regalia are to consolidate the Oracle API and expand upon the features it provides, as well as completing development of the Sentinel Discord bot. Challenges and considerations for future development:
 
-1. Scaling API and RPC calls to the number of users and collections being watched.
-2. Moving towards an on-chain storage solution for royalty fulfillment consensus.
-
-The major driver for the success of this project will be adoption - the more users onboarded, the greater the repository of data on post-sale royalty fulfillment, and the more robust the ecosystem.
+1. Scaling API and RPC calls to the number of users and collections being watched will require the redesign of certain portions of the engines in place for pulling transaction data and metadata off the blockchain and from APIs.
+2. Moving towards an on-chain storage solution for royalty fulfillment consensus would be an important shift in creating a robust, decentralized source of consensus for the Oracle framework.
+3. The major criteria for the success of this project will be adoption - the more users onboarded, the greater the repository of data on post-sale royalty fulfillment, and the better the ecosystem.
 
 ## Thanks!
 I'd like to thank MagicEden once again for the opportunity of being a part of something bigger, as well as the judges for their consideration! Feel free to get in touch at any point in time should there be any questions or issues regarding the Regalia Suite on twitter [@irwynks_sol](https://twitter.com/irwynks_sol) or discord irwynks#8936
