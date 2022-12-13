@@ -46,6 +46,14 @@ Each user is granted an API key through which they can access Regalia Oracle. Do
 ### Regalia Portal
 The Portal is a boilerplate implementation of Regalia Oracle, and is a full fledged royalty tracking and fulfillment app for project creators and community members alike.
 
+![Login](https://i.imgur.com/WUBeyP2.png)
+
+![Metrics](https://i.imgur.com/qYdHqKl.png)
+
+![Collection Linking](https://i.imgur.com/uIOANIf.png)
+
+![User Dashboard](https://i.imgur.com/TALGdZH.png)
+
 Check out the [demo video](https://www.youtube.com/watch?v=YZ0x8-_rNFE) or jump onto the [portal](https://regalia.live) itself for an overview of it's functionality.
 
 ### Regalia Sentinel
