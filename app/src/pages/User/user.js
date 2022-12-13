@@ -16,7 +16,7 @@ export const User = () => {
     let [mode, setMode] = useGlobal('mode');
     let [tracked, setTracked] = useState([])
     let [others, setOthers] = useState([])
-    let [mintAddress, setMintAddress] = useState(false)
+    let [mintAddress, setMintAddress] = useState(false);
 
     useEffect(() => {
         
@@ -47,7 +47,7 @@ export const User = () => {
         }
 
         let interval = setInterval(() => {
-                refresh();
+                //refresh();
             }, 2000);
 
         return () => clearInterval(interval); 
@@ -80,7 +80,7 @@ export const User = () => {
 
             const signature = await wallet.sendTransaction(tx, connection, { minContextSlot });
 
-            let confirmed = await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature }); 
+            await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature }); 
 
             let { data: processed } = await axios({
                 method: 'post',
@@ -113,10 +113,8 @@ export const User = () => {
 
         let { data } = await axios(config); 
 
-        console.log('Getting payment status');
-
         if (!!data.success && !!data.data.tx.fulfilled) {
-            refresh()
+            refresh();
             setMintAddress(false);
         }
     }
@@ -155,8 +153,6 @@ export const User = () => {
                     </div>
                     <div className="nfts">
                         {tracked.map(nft => { 
-                        
-                            console.log(nft);
                             
                         return (
                             <div className="nft">

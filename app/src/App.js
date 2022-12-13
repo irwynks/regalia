@@ -25,12 +25,8 @@ import { clusterApiUrl } from '@solana/web3.js';
 
 const App = () => {
     
-    let [session] = useGlobal('session');
+    let [session] = useGlobal('session'); 
     
-    console.log('RENDER APP', session);
-
-    console.log(process.env.REACT_APP_RPC)
-
     const router = createBrowserRouter([
         {
             path: '/',

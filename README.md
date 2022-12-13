@@ -91,4 +91,4 @@ The plan moving forward is to keep building! The next steps for Regalia are to c
 3. The major criteria for the success of this project will be adoption - the more users onboarded, the greater the repository of data on post-sale royalty fulfillment, and the better the ecosystem.
 
 ## Thanks!
-I'd like to thank MagicEden once again for the opportunity of being a part of something bigger, as well as the judges for their consideration! Feel free to get in touch at any point in time should there be any questions or issues regarding the Regalia Suite on twitter [@irwynks_sol](https://twitter.com/irwynks_sol) or discord irwynks#8936
+I'd like to thank MagicEden once again for the opportunity of being a part of something bigger, as well as the judges for their consideration! Feel free to get in touch at any point in time should there be any questions or issues regarding the Regalia Suite on twitter [@irwynks_sol](https://twitter.com/irwynks_sol) or telegram [@irwynks](https://t.me/irwynks).

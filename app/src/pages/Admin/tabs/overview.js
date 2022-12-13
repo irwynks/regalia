@@ -101,23 +101,11 @@ export const Overview = (props) => {
                 }
             };
 
-            let { data } = await axios(config);
-
-            console.log(data);
+            let { data } = await axios(config); 
 
             setRoyaltyData(data.data);
 
-            toggle(false);
-
-            console.log({
-                ...template,
-                labels: Object.keys(royaltyData.metrics.marketplaceBreakdown).map(i => _.startCase(i)),
-                datasets: [{
-                    ...template.datasets[0],
-                    label: 'NFTs Sold',
-                    data: Object.values(royaltyData.metrics.marketplaceBreakdown).map(i => i.count)
-                }]
-            }) 
+            toggle(false); 
 
         } catch (err) {
             console.log(err);
@@ -153,7 +141,6 @@ export const Overview = (props) => {
                             <div className="title">Date range</div>
                             <DateRangePicker
                                 onApply={(obj, {startDate, endDate}) => {
-                                    console.log(startDate, endDate);
                                     setStart(startDate);
                                     setEnd(endDate);
                                     getRoyaltyData(startDate, endDate)
@@ -281,7 +268,7 @@ export const Overview = (props) => {
                     </div>
                     :null
                 :
-                <div className="cta"><span onClick={() => { console.log('settings'); setKey('settings')}}>LINK A COLLECTION</span> TO GET STARTED</div>
+                <div className="cta"><span onClick={() => { setKey('settings')}}>LINK A COLLECTION</span> TO GET STARTED</div>
             }
 
         </Container>

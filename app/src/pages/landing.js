@@ -31,7 +31,6 @@ export const Landing = () => {
             let { data } = await axios.get(`https://api.regalia.live/v1/auth/nonce?pubkey=${pubkey}`);
             const { nonce } = data.data;
             wallet.signMessage(decodeUTF8(nonce)).then(async signed => {
-                console.log(signed);
                 let encoded = bs58.encode(signed);
                 let { data: response } = await axios({
                     method: 'post',

@@ -22,10 +22,7 @@ export const Auth = () => {
         if (response.success) {
             
             let { data } = response;
-            let { user, guilds, session_id } = data;
-
-            console.log(user);
-            console.log(guilds);
+            let { user, guilds, session_id } = data; 
 
             if (!!user) {
                 setUser(user);
@@ -36,7 +33,6 @@ export const Auth = () => {
             }
 
         } else { 
-            console.log(response.message); 
         }
     }
 

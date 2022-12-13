@@ -91,7 +91,6 @@ export const Community = (props) => {
 
             setCommunityData(data.data); 
 
-            console.log(data.data);
 
             firing = false;
 

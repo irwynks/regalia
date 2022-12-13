@@ -21,7 +21,6 @@ export const Admin = () => {
     }, [])
 
     useEffect(() => {
-        console.log('ACTIVE KEY CHANGED', activeKey)
     }, [activeKey])
     
 

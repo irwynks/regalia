@@ -20,10 +20,7 @@ export const Header = () => {
 
     let memoified_user = useMemo(() => user, [user]); 
 
-    useEffect(() => {
-        
-        console.log(wallet);
-
+    useEffect(() => { 
         if (!!!wallet.connected) { 
             setSession(false)
             window.localStorage.removeItem('session');

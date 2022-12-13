@@ -37,9 +37,7 @@ export const Settings = (props) => {
     const [linked, setLinked] = useState(false);
     const [checkingLinkage, setCheckingLinkage] = useState(false);
 
-    useEffect(() => {
-        
-        console.log("LINKING UPDATED"); 
+    useEffect(() => { 
 
         if (linking.status === 'pending_transaction') {
             setLinked(false);
@@ -55,12 +53,8 @@ export const Settings = (props) => {
     }, [linking])
 
     useEffect(() => { 
-
-        //console.log("CHECKING LINKAGE", checkingLinkage)
-
         let interval;
         if (!!checkingLinkage) {
-            console.log('SETTING INTERVAL TO CHECK LINKAGE')
             interval = setInterval(() => {
                 getLinkageStatus();
             }, 1000);
@@ -71,8 +65,6 @@ export const Settings = (props) => {
         return () => clearInterval(interval);
 
     }, [checkingLinkage]) 
-
-    console.log(user);
 
     let [newCollection, setNewCollection] = useState({
         name: "",
@@ -90,9 +82,7 @@ export const Settings = (props) => {
             }
         };
 
-        let { data } = await axios(config);
-
-        console.log(data);
+        let { data } = await axios(config); 
 
         if (!!data.success && !!data.data.status) { 
                 setLinking(data.data); 
@@ -143,9 +133,7 @@ export const Settings = (props) => {
             let { data } = await axios(config); 
 
             if (!!data.success && !!data.data) {
-                let { collections, authorizedCollections } = data.data;
-                let update = { ...user, collections, authorizedCollections }
-                console.log(update)
+                let update = { ...data.data }
                 setUser(update)
             }
         } catch (err) {
@@ -156,7 +144,6 @@ export const Settings = (props) => {
     const updateCollections = async () => {
         
         try {
-            console.log('Adding new collection')
             let session_id = window.localStorage.getItem('session'); 
 
             let config = {
@@ -176,28 +163,6 @@ export const Settings = (props) => {
             console.log(err);
         }
 
-    }
-
-    const updateUser = async (update) => {
-        try {
-            let session_id = window.localStorage.getItem('session');
-            let config = {
-                method: 'put',
-                url: `https://api.regalia.live/v1/user`,
-                headers: {
-                    Authorization: session_id,
-                },
-                data: update
-            };
-
-            let { data } = await axios(config);
-
-            console.log(data);
-
-            setUser(data.data); 
-        } catch (err) {
-            console.log(err)
-        }
     }
 
     return (
@@ -360,7 +325,6 @@ export const Settings = (props) => {
                                     e.preventDefault();
                                     const formData = new FormData(e.target); 
                                     let data = Object.fromEntries(formData.entries());
-                                    console.log(data);
                                     initiateLinking(data.mintAddress)
                                 }}>
                                     <Form.Group className="mb-3" controlId="notificationWebhook">
