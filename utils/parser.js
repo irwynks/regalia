@@ -117,7 +117,7 @@ const magicedenParseSignatureHelius = async (signature, type) => {
         if (isActive) {
             let nft = await solana.getNFT(mintAddress);
 
-            let url = "https://api.helius.xyz/v0/transactions?api-key=4996474e-d9ed-47b3-b66c-62518f7b8394&commitment=confirmed"
+            let url = `https://api.helius.xyz/v0/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=confirmed`
 
             let { data } = await axios({
                 url,
