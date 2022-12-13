@@ -1,10 +1,13 @@
-![Regalia Logo](https://i.imgur.com/9Bp9Irol.png =200x200)
+![Regalia Logo](https://i.imgur.com/9Bp9Irol.png)
 # Regalia
 Regalia is a royalty tracking and fulfillment tool linked to the Regalia Oracle, a source of consensus framework for royalty fulfillment.
 
-Demo Video: 
+Demo Video: https://www.youtube.com/watch?v=YZ0x8-_rNFE
+
 Regalia Portal: https://regalia.live
+
 Regalia Oracle Documentation: https://documenter.getpostman.com/view/19486091/2s8YzUwMBb
+
 ## Motivation
 Optional NFT royalties have become a reality over the past few months, and this has led to the appearance of numerous royalty enforcement/incentivization solutions as creators find ways to revive their royalty revenue streams.
 
@@ -43,7 +46,7 @@ Each user is granted an API key through which they can access Regalia Oracle. Do
 ### Regalia Portal
 The Portal is a boilerplate implementation of Regalia Oracle, and is a full fledged royalty tracking and fulfillment app for project creators and community members alike.
 
-Check out the [demo video]() or jump onto the [portal](https://regalia.live) itself for an overview of it's functionality.
+Check out the [demo video](https://www.youtube.com/watch?v=YZ0x8-_rNFE) or jump onto the [portal](https://regalia.live) itself for an overview of it's functionality.
 
 ### Regalia Sentinel
 Regalia Sentinel is a discord bot that was intended to bridge the divide between discord and the portal, as well as providing in channel notifications and statistics on post-sale royalty fulfillment and collection performance over time. Sentinel was originally planned as a main feature for the Regalia suite, but over the course of the project, development on the Oracle API took precedence.
