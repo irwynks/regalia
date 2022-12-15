@@ -122,6 +122,7 @@ REACT_APP_DOMAIN=http://localhost:3000
 `REACT_APP_RPC` should be the URL to a RPC endpoint that you have access to.
 
 **Process management**
+
 Regalia Portal uses PM2 as a process manager. You can install it using `npm i -g pm2`.
 
 With that done, you can start up the Portal services by navigating to the root folder and running `pm2 start ecosystem.config.js`
