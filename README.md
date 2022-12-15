@@ -81,6 +81,9 @@ let  {  data  }  =  await  axios({
 		transactions: [signature]
 	}
 })
+
+[Update 2022/12/15] Regalia has been updated to use the new `NFT Events` endpoint on Helius, effectively speeding up transaction pulls and reducing the number of calls made to their API.
+
 ```
 Regalia Oracle also makes use of the **webhooks** provided by Helius to track payments made to the Oracle wallet for user onboarding.
 ![Webhook](https://i.imgur.com/hth0SsY.png)
