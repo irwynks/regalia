@@ -130,5 +130,6 @@ dist
 .pnp.*
 
 .vscode
+scripts
 **/scripts
 **/.vscode
