@@ -17,7 +17,7 @@ export const Auth = () => {
     const authUser = async (code) => {
         const { data:response } = await axios({
             method: 'get',
-            url: `https://api.regalia.live/v1/auth`,
+            url: `{process.env.REACT_APP_DOMAIN}/v1/auth`,
             params: { code }, 
         }) 
         if (response.success) {

@@ -97,5 +97,39 @@ The plan moving forward is to keep building! The next steps for Regalia are to c
 2. Moving towards an on-chain storage solution for royalty fulfillment consensus would be an important shift in creating a robust, decentralized source of consensus for the Oracle framework.
 3. The major criteria for the success of this project will be adoption - the more users onboarded, the greater the repository of data on post-sale royalty fulfillment, and the better the ecosystem.
 
+## Cloning and Running Regalia Portal
+Make sure you have nodejs, redis, and mongodb installed on the system you are deploying to.
+
+# File setup
+
+`git clone https://github.com/irwynks/regalia.git`
+
+Create a `.env` file at the root of the folder and add in your keys for the following:
+
+```
+HELIUS_API_KEY=
+THEINDEX_API_KEY=
+```
+You can create a free account at https://www.theindex.io. 
+
+Similarly, create a `.env` file at the root of the app folder and add in your keys for the following:
+```
+WDS_SOCKET_PORT=0
+REACT_APP_ORACLE_API_KEY=
+REACT_APP_RPC=
+REACT_APP_DOMAIN=http://localhost:3000
+```
+`REACT_APP_RPC` should be the URL to a RPC endpoint that you have access to.
+
+# Process management
+Regalia Portal uses PM2 as a process manager. You can install it using `npm i -g pm2`.
+
+With that done, you can start up the Portal services by navigating to the root folder and running `pm2 start ecosystem.config.js`
+
+Regalia Portal should be started up on your machine and running on port 3000.
+
+## License
+Regalia Portal is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
 ## Thanks!
 I'd like to thank MagicEden once again for the opportunity of being a part of something bigger, as well as the judges for their consideration! Feel free to get in touch at any point in time should there be any questions or issues regarding the Regalia Suite on twitter [@irwynks_sol](https://twitter.com/irwynks_sol) or telegram [@irwynks](https://t.me/irwynks).

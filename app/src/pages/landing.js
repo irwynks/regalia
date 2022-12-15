@@ -29,13 +29,13 @@ export const Landing = () => {
     const connectWallet = async () => { 
         if (!!wallet.publicKey) {
             const pubkey = wallet.publicKey.toBase58();
-            let { data } = await axios.get(`https://api.regalia.live/v1/auth/nonce?pubkey=${pubkey}`);
+            let { data } = await axios.get(`{process.env.REACT_APP_DOMAIN}/v1/auth/nonce?pubkey=${pubkey}`);
             const { nonce } = data.data;
             wallet.signMessage(decodeUTF8(nonce)).then(async signed => {
                 let encoded = bs58.encode(signed);
                 let { data: response } = await axios({
                     method: 'post',
-                    url: 'https://api.regalia.live/v1/auth/signed',
+                    url: '{process.env.REACT_APP_DOMAIN}/v1/auth/signed',
                     data: { encoded, pubkey }
                 }) 
 

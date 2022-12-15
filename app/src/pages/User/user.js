@@ -136,7 +136,7 @@ export const User = () => {
 
             let config = {
                 method: 'get',
-                url: `https://api.regalia.live/v1/user/nfts`,
+                url: `{process.env.REACT_APP_DOMAIN}/v1/user/nfts`,
                 headers: {
                     Authorization: session_id,
                 }

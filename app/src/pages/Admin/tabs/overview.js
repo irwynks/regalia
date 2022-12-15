@@ -88,9 +88,9 @@ export const Overview = (props) => {
             toggle(true);
 
             console.error('Getting royalty data');
-            let url = `https://api.regalia.live/v1/stats/royalties/by-collection`;
+            let url = `{process.env.REACT_APP_DOMAIN}/v1/stats/royalties/by-collection`;
             if (!!start && !!end)
-                url = `https://api.regalia.live/v1/stats/royalties/by-collection?start=${start.toISOString()}&end=${end.toISOString()}`;
+                url = `{process.env.REACT_APP_DOMAIN}/v1/stats/royalties/by-collection?start=${start.toISOString()}&end=${end.toISOString()}`;
             
             let session_id = window.localStorage.getItem('session');
             let config = {

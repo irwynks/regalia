@@ -124,7 +124,7 @@ export const Settings = (props) => {
 
             let config = {
                 method: 'get',
-                url: `https://api.regalia.live/v1/user`,
+                url: `{process.env.REACT_APP_DOMAIN}/v1/user`,
                 headers: {
                     Authorization: session_id,
                 }
@@ -148,7 +148,7 @@ export const Settings = (props) => {
 
             let config = {
                 method: 'put',
-                url: `https://api.regalia.live/v1/user`,
+                url: `{process.env.REACT_APP_DOMAIN}/v1/user`,
                 headers: {
                     Authorization: session_id,
                 },
