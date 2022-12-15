@@ -100,7 +100,7 @@ The plan moving forward is to keep building! The next steps for Regalia are to c
 ## Cloning and Running Regalia Portal
 Make sure you have nodejs, redis, and mongodb installed on the system you are deploying to.
 
-# File setup
+**File setup**
 
 `git clone https://github.com/irwynks/regalia.git`
 
@@ -121,7 +121,7 @@ REACT_APP_DOMAIN=http://localhost:3000
 ```
 `REACT_APP_RPC` should be the URL to a RPC endpoint that you have access to.
 
-# Process management
+**Process management**
 Regalia Portal uses PM2 as a process manager. You can install it using `npm i -g pm2`.
 
 With that done, you can start up the Portal services by navigating to the root folder and running `pm2 start ecosystem.config.js`
