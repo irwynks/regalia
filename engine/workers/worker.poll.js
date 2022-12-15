@@ -39,14 +39,20 @@ module.exports = {
                         let { firstCreatorAddress } = collection;
 
                         let [lastTransaction] = await db.transactions.find({ firstCreatorAddress }).sort({ blocktime: -1 }).limit(1).lean();
+
                         console.log(lastTransaction);
-                        let startTime = +lastTransaction.blocktime - 10;
+
                         let endTime = moment().unix()
+                        let startTime;
+                        if (!!lastTransaction)
+                            startTime = +lastTransaction.blocktime - 10;
 
                         console.log(startTime, endTime);
 
                         let paginationToken = "";
                         console.log(paginationToken);
+
+                        let tries = 0;
 
                         do {
 
@@ -58,8 +64,6 @@ module.exports = {
                                         "query": {
                                             "sources": [],
                                             "types": ["NFT_SALE"],
-                                            startTime,
-                                            endTime,
                                             "nftCollectionFilters": {
                                                 "firstVerifiedCreator": [firstCreatorAddress]
                                             }
@@ -68,6 +72,11 @@ module.exports = {
                                             "limit": 500,
                                         }
                                     }
+                                }
+
+                                if (!!startTime && !!endTime) {
+                                    config.data.query.startTime = startTime;
+                                    config.data.query.endTime = endTime;
                                 }
 
                                 if (!!paginationToken) config.data.options.paginationToken = paginationToken;
@@ -126,11 +135,12 @@ module.exports = {
 
                             } catch (err) {
                                 console.log(err);
-                                console.log('API error, retrying in 1s')
+                                console.log('API error, retrying in 1s. Retry', tries)
                                 await wait(1000);
+                                tries += 1;
                             }
 
-                        } while (!!paginationToken)
+                        } while (!!paginationToken && tries < 5)
 
                         await rclient.hset('collections.status', firstCreatorAddress, 'Complete')
 

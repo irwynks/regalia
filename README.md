@@ -43,6 +43,9 @@ Regalia Oracle provides developers with a framework through which they can easil
 
 Each user is granted an API key through which they can access Regalia Oracle. Documentation for the API can be found on the published [Postman documentation](https://documenter.getpostman.com/view/19486091/2s8YzUwMBb).
 
+Example application:
+![Example](https://i.imgur.com/3lnqDaa.png)
+
 ### Regalia Portal
 The Portal is a boilerplate implementation of Regalia Oracle, and is a full fledged royalty tracking and fulfillment app for project creators and community members alike.
 
