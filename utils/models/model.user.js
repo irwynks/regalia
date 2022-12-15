@@ -25,7 +25,10 @@ let User = new Schema(
         apikey: { type: String },
 
         lastChecked: { type: Date, default: null },
-        roles: { type: [Schema.Types.Mixed], default: [] }
+        roles: { type: [Schema.Types.Mixed], default: [] },
+
+        createdAt: Date,
+        updatedAt: Date
     },
     { toJSON: { virtuals: true }, strict: false }
 );
@@ -44,6 +47,8 @@ User.pre("save", function (next) {
         this.updatedAt = now;
 
         this.wallets = _.uniq([...data.wallets, data.pubkey])
+
+        this.nfts = _.uniq(data.nfts)
 
         if (!this.createdAt) this.createdAt = now;
         if (!!!this.apikey)

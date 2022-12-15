@@ -1,4 +1,4 @@
-import { useGlobal, useState, useEffect } from 'reactn';
+import { useGlobal, useState, useEffect, useMemo } from 'reactn';
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { Container, Alert, Image, Card, Row, Col } from 'react-bootstrap';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react'; 
@@ -13,11 +13,31 @@ export const User = () => {
     const { connection } = useConnection();
 
     let [user, setUser] = useGlobal('user');
+    let [nfts, setNFTs] = useGlobal('nfts');
     let [mode, setMode] = useGlobal('mode');
     let [tracked, setTracked] = useState([])
     let [others, setOthers] = useState([])
     let [mintAddress, setMintAddress] = useState(false);
 
+    const memoized_nfts = useMemo(() => {
+        return nfts;
+    }, [nfts]);
+
+    useEffect(() => {
+        
+        if (!!user) {
+            let t = [];
+            let o = [];
+            for (let nft of memoized_nfts) {
+                !!nft.tracked ? t.push(nft) : o.push(nft);
+            }
+            setTracked(t.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
+            setOthers(o.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
+        }
+
+    }, [memoized_nfts])
+
+    
     useEffect(() => {
         
         let interval;
@@ -34,20 +54,10 @@ export const User = () => {
     }, [mintAddress]);
 
     useEffect(() => {
-        setMode('user');
-
-        if (!!user) {
-            let t = [];
-            let o = [];
-            for (let nft of user.nfts) {
-                !!nft.tracked ? t.push(nft) : o.push(nft);
-            }
-            setTracked(t.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
-            setOthers(o.sort((a, b) => a.firstCreatorAddress > b.firstCreatorAddress ? -1 : 1));
-        }
+        setMode('user'); 
 
         let interval = setInterval(() => {
-                //refresh();
+                refresh();
             }, 2000);
 
         return () => clearInterval(interval); 
@@ -126,7 +136,7 @@ export const User = () => {
 
             let config = {
                 method: 'get',
-                url: `https://api.regalia.live/v1/user`,
+                url: `https://api.regalia.live/v1/user/nfts`,
                 headers: {
                     Authorization: session_id,
                 }
@@ -135,7 +145,7 @@ export const User = () => {
             let { data } = await axios(config); 
 
             if (!!data.success && !!data.data) { 
-                setUser({ ...data.data })
+                setNFTs(data.data)
             }
         } catch (err) {
             console.log(err);

@@ -58,6 +58,47 @@ module.exports = {
             return false;
         }
     },
+    parseEventHelius: async (data) => {
+        let type = "buyNow";
+        let parsed = { ...blank, type };
+
+        try {
+
+            let { nativeTransfers, timestamp, source, signature, nfts, buyer, seller, amount } = data;
+            let nft = nfts[0];
+            parsed.marketplace = source.toLowerCase().replace(/_/gm, '');
+            parsed.hash = signature;
+            parsed.blocktime = timestamp;
+            parsed.mintAddress = nft.mint;
+
+            parsed.buyer = buyer;
+            parsed.seller = seller;
+            parsed.saleAmount = +(+amount / LAMPORTS_PER_SOL).toLocaleString("en-EN", { maximumFractionDigits: 6, })
+
+            let onChain = await solana.getNFT(parsed.mintAddress);
+
+            parsed.royaltyPercent = onChain.royalties;
+            parsed.royaltyAmount = +((+parsed.royaltyPercent / 100) * +parsed.saleAmount).toLocaleString("en-EN", { maximumFractionDigits: 6, });
+
+            let creators = onChain.creators.map(i => i.address);
+
+            parsed.firstCreatorAddress = nft.firstVerifiedCreator;
+
+            for (let transfer of nativeTransfers) {
+                if (creators.includes(transfer.toUserAccount)) {
+                    console.log(transfer);
+                    parsed.royaltyPaid += +(+transfer.amount / LAMPORTS_PER_SOL).toLocaleString("en-EN", { maximumFractionDigits: 6, })
+                }
+            }
+
+            parsed.royaltyPaidPercent = Math.round((+parsed.royaltyPaid / +parsed.royaltyAmount) * 100);
+
+        } catch (err) {
+            console.log(err)
+        } finally {
+            return parsed;
+        }
+    },
     parseTransactionsHelius: async (data) => {
         let type = "buyNow";
         let parsed = { ...blank, type };

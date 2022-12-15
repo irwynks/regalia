@@ -7,14 +7,15 @@ const axios = require("axios");
 let NFT = new Schema(
     {
         name: { type: String, default: "" },
-        mintAddress: { type: String, required: true },
+        mintAddress: { type: String, required: true, unique: true },
         firstCreatorAddress: { type: String, required: true },
         symbol: { type: String, default: "" },
         updateAuthority: { type: String, default: "" },
         creators: { type: [Schema.Types.Mixed], default: [] },
         image_url: { type: String, default: '/nft-placeholder.png' },
         attributes: { type: [Schema.Types.Mixed], default: [] },
-        currentOwner: String
+        currentOwner: String,
+        tx: { type: Schema.Types.Mixed, default: null },
     },
     { toJSON: { virtuals: true }, strict: false }
 );

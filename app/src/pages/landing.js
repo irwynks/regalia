@@ -15,6 +15,7 @@ export const Landing = () => {
     const wallet = useWallet();
     
     let [user, setUser] = useGlobal('user');
+    let [nfts, setNFTs] = useGlobal('nfts');
     let [session, setSession] = useGlobal('session');
     let [guilds, setGuilds] = useGlobal('guilds');
     let [collections, setCollections] = useGlobal('collections'); 
@@ -44,6 +45,7 @@ export const Landing = () => {
                     let { user, guilds, session_id } = response.data;
                     if (!!user) { 
                         setUser(user);
+                        setNFTs(user.nfts);
                         setGuilds(guilds);
                         setCollections(user.collections);
                         setSession(session_id);

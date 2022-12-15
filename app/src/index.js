@@ -15,6 +15,7 @@ setGlobal({
   royaltyData: {},
   activeTabKey:'overview',
   mode: 'user',
+  nfts:[]
 
 })
 

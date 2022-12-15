@@ -9,6 +9,7 @@ export const Auth = () => {
     const navigate = useNavigate();
     let [searchParams, setSearchParams] = useSearchParams();
     let [user, setUser] = useGlobal('user');
+    let [nfts, setNFTs] = useGlobal('nfts');
     let [session, setSession] = useGlobal('session');
     let [guilds, setGuilds] = useGlobal('guilds');
     let [collections, setCollections] = useGlobal('collections'); 
@@ -26,6 +27,7 @@ export const Auth = () => {
 
             if (!!user) {
                 setUser(user);
+                setNFTs(user.nfts);
                 setGuilds(guilds);
                 setCollections(user.collections);
                 setSession(session_id);

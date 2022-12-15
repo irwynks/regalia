@@ -38,7 +38,7 @@ const dequeue = async () => {
         if (!dequeueing) { await dequeue() }
     }, { scheduled: true })
 
-    cron.schedule(`0 */5 * * * *`, async () => {
+    cron.schedule(`0 */1 * * * *`, async () => {
         if (!!!pollingTransactions) {
             pollingTransactions = true;
             await poll.transactions()
@@ -46,7 +46,7 @@ const dequeue = async () => {
         }
     }, { scheduled: true })
 
-    cron.schedule(`0 */3 * * * *`, async () => {
+    cron.schedule(`0 */1 * * * *`, async () => {
         if (!!!pollingOwnedNFTs) {
             console.log('Polling NFTS');
             pollingOwnedNFTs = true;
@@ -55,8 +55,17 @@ const dequeue = async () => {
         }
     }, { scheduled: true })
 
-    pollingOwnedNFTs = true;
-    await poll.userWalletNFTs()
-    pollingOwnedNFTs = false;
+    cron.schedule(`*/30 * * * * *`, async () => {
+        if (!!!linkingTXs) {
+            linkingTXs = true;
+            await poll.linkTransactions()
+            linkingTXs = false;
+        }
+    }, { scheduled: true })
+
+
+    linkingTXs = true;
+    await poll.linkTransactions()
+    linkingTXs = false;
 
 })()

@@ -16,6 +16,8 @@ const { Connection, PublicKey } = require("@solana/web3.js");
 const connection = new Connection(`https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`);
 const metaplex = new Metaplex(connection);
 
+const moment = require("moment");
+
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
@@ -36,42 +38,102 @@ module.exports = {
                     try {
                         let { firstCreatorAddress } = collection;
 
-                        console.log("Getting transactions for", firstCreatorAddress)
+                        let [lastTransaction] = await db.transactions.find({ firstCreatorAddress }).sort({ blocktime: -1 }).limit(1).lean();
+                        console.log(lastTransaction);
+                        let startTime = +lastTransaction.blocktime - 10;
+                        let endTime = moment().unix()
 
-                        //Get hashlist from cache, if not available get from API
-                        let mintAddresses = await rclient.smembers(`hashlist:${firstCreatorAddress}`)
+                        console.log(startTime, endTime);
 
-                        console.log(mintAddresses);
+                        let paginationToken = "";
+                        console.log(paginationToken);
 
-                        if (!!!mintAddresses || !!!mintAddresses.length) {
-                            console.log('Getting hashlist from API');
-                            mintAddresses = await solana.getHashlist(firstCreatorAddress);
-                            await rclient.sadd(`hashlist:${firstCreatorAddress}`, mintAddresses)
-                        }
+                        do {
 
-                        //Scrape hashes. 
-                        await PromisePool.withConcurrency(5)
-                            .for(mintAddresses)
-                            .process(async (mintAddress) => {
-                                try {
-                                    let success = false;
-                                    while (!success) {
-                                        try {
-
-                                            await getTransactionData(mintAddress);
-                                            success = true;
-                                            await wait(100);
-
-                                        } catch (err) {
-                                            console.log(err.code);
-                                            success = false;
-                                            await wait(1000);
+                            try {
+                                let config = {
+                                    method: 'post',
+                                    url: `https://api.helius.xyz/v1/nft-events?api-key=${process.env.HELIUS_API_KEY}`,
+                                    data: {
+                                        "query": {
+                                            "sources": [],
+                                            "types": ["NFT_SALE"],
+                                            startTime,
+                                            endTime,
+                                            "nftCollectionFilters": {
+                                                "firstVerifiedCreator": [firstCreatorAddress]
+                                            }
+                                        },
+                                        "options": {
+                                            "limit": 500,
                                         }
                                     }
-                                } catch (err) {
-                                    console.log(err);
                                 }
-                            })
+
+                                if (!!paginationToken) config.data.options.paginationToken = paginationToken;
+
+                                let { data } = await axios(config);
+
+                                let { result } = data;
+                                paginationToken = data.paginationToken;
+
+                                console.log(result.length);
+
+                                if (!!result.length) {
+                                    await PromisePool.withConcurrency(20)
+                                        .for(result)
+                                        .process(async (item) => {
+
+                                            try {
+
+                                                let hash = item.signature;
+                                                let found = await db.transactions.findOne({ hash });
+
+                                                let mintAddress = item.nfts[0].mint;
+                                                let nft = await db.nfts.findOne({ mintAddress: mintAddress });
+
+                                                if (!!!found) {
+                                                    let parsed = await parser.parseEventHelius(item);
+                                                    console.error(parsed);
+                                                    let tx = new Transaction({ parsed })
+                                                    found = await tx.save()
+                                                } else {
+                                                    console.log('Transaction already logged.')
+                                                }
+
+                                                if (!!nft) {
+                                                    console.log('Found NFT. Linking TX.')
+                                                    let tx = nft.toJSON().tx
+                                                    if (!!tx) {
+                                                        if (+found.blocktime > +tx.blocktime) {
+                                                            nft.set('currentOwner', found.buyer);
+                                                            nft.set('tx', found.toJSON());
+                                                        }
+                                                        await nft.save();
+                                                    }
+                                                }
+
+                                            } catch (err) {
+                                                console.log(err);
+                                            }
+
+                                        })
+                                } else {
+                                    paginationToken = false;
+                                }
+
+                                await wait(100);
+
+                            } catch (err) {
+                                console.log(err);
+                                console.log('API error, retrying in 1s')
+                                await wait(1000);
+                            }
+
+                        } while (!!paginationToken)
+
+                        await rclient.hset('collections.status', firstCreatorAddress, 'Complete')
+
                     } catch (err) {
                         console.log(err);
                     }
@@ -85,6 +147,7 @@ module.exports = {
         }
     },
 
+    //Get NFTs in user wallets and link transactions
     userWalletNFTs: async (pubkey) => {
 
         try {
@@ -104,10 +167,24 @@ module.exports = {
                         const nfts = await metaplex.nfts().findAllByOwner({ owner: new PublicKey(lean.pubkey) });
 
                         let mintAccounts = nfts.map(i => i.mintAddress);
-                        let addToUser = [];
+                        let found = await db.nfts.find({ mintAddress: { $in: mintAccounts } }, { mintAddress: 1 }).lean();
 
-                        while (!!mintAccounts.length) {
-                            let batch = mintAccounts.splice(0, 100)
+                        console.error(mintAccounts.length, 'FOUND', found.length, lean.pubkey);
+
+                        let addToUser = [...found.map(i => i._id.toString())]
+
+                        let newNFTs = _.difference(mintAccounts, found.map(i => i.mintAddress.toString()));
+
+                        let filtered = [];
+
+                        for (let mint of newNFTs) {
+                            let scam = await rclient.sismember('nft.blacklist', mint);
+                            if (!!!scam)
+                                filtered.push(mint);
+                        }
+
+                        while (!!filtered.length) {
+                            let batch = filtered.splice(0, 100);
 
                             let { data: meta } = await axios({
                                 method: 'post',
@@ -135,12 +212,6 @@ module.exports = {
 
                                     let found = await db.nfts.findOne({ mintAddress });
 
-                                    let { currentOwner: buyer } = nft;
-                                    let [transaction] = await db.transactions.find({ buyer, mintAddress }).sort({ blocktime: -1 }).limit(1).lean();
-                                    if (!!!transaction)
-                                        transaction = await getTransactionData(nft.mintAddress);
-                                    nft.tx = !!transaction ? transaction : null;
-
                                     if (!!found) {
                                         for (let [key, val] of Object.entries(nft)) {
                                             found.set(key, val);
@@ -156,17 +227,20 @@ module.exports = {
                                 } catch (err) {
                                     if (/(Cannot read properties of null \(reading 'find'\))|(Cannot destructure property 'name' of 'item.offChainData')/i.test(err + '')) {
                                         console.error('Potentially a scam NFT')
+                                        await rclient.sadd('nft.blacklist', item.mint);
                                         console.error(item.mint);
                                     } else {
                                         console.log(err)
                                         console.error(item.onChainData.data);
                                     }
+                                    await wait(1000);
                                 }
 
                             }
+                            await wait(300)
                         }
 
-                        user.set('nfts', _.uniq(addToUser));
+                        user.set('nfts', _.uniq([...addToUser]));
                         await user.save();
 
                     } catch (err) {
@@ -178,6 +252,51 @@ module.exports = {
             console.log(err);
         } finally {
             return;
+        }
+
+    },
+
+    linkTransactions: async () => {
+
+        try {
+
+            let users = await db.users.find().populate('nfts').lean();
+
+            await PromisePool.withConcurrency(50)
+                .for(users)
+                .process(async (user) => {
+                    try {
+                        let { nfts } = user;
+
+                        await PromisePool.withConcurrency(50)
+                            .for(nfts)
+                            .process(async (nft) => {
+
+                                try {
+                                    if (!!!nft.tx) {
+                                        let { mintAddress } = nft;
+                                        let found = await db.nfts.findOne({ mintAddress });
+
+                                        let [tx] = await db.transactions.find({ mintAddress }).sort({ blocktime: -1 }).limit(1);
+
+                                        if (!!tx) {
+                                            found.set('tx', tx.toJSON());
+                                            await found.save();
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.log(err);
+                                }
+
+                            })
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+                })
+
+        } catch (err) {
+            console.log(err);
         }
 
     }
