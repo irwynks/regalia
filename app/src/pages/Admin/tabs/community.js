@@ -81,7 +81,7 @@ export const Community = (props) => {
             let session_id = window.localStorage.getItem('session');
             let config = {
                 method: 'get',
-                url: `{process.env.REACT_APP_DOMAIN}/v1/stats/community/by-user`,
+                url: `${process.env.REACT_APP_API_DOMAIN}/v1/stats/community/by-user`,
                 headers: {
                     Authorization: session_id
                 }

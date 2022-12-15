@@ -17,7 +17,7 @@ export const Auth = () => {
     const authUser = async (code) => {
         const { data:response } = await axios({
             method: 'get',
-            url: `{process.env.REACT_APP_DOMAIN}/v1/auth`,
+            url: `${process.env.REACT_APP_API_DOMAIN}/v1/auth`,
             params: { code }, 
         }) 
         if (response.success) {

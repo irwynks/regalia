@@ -114,16 +114,19 @@ export const User = () => {
 
     const getPaymentStatus = async () => {
         let config = {
-            method: 'get',
-            url: `https://oracle.regalia.live/v1/royalties/nft/status?mintAddress=${mintAddress}`,
+            method: 'post',
+            url: `https://oracle.regalia.live/v1/royalties/nft/status`,
             headers: {
                 Authorization: user.apikey,
+            },
+            data: {
+                mintAddresses: [mintAddress ]
             }
         };
 
         let { data } = await axios(config); 
 
-        if (!!data.success && !!data.data.tx.fulfilled) {
+        if (!!data.success && !!data.data[0].tx.fulfilled) {
             refresh();
             setMintAddress(false);
         }
@@ -136,7 +139,7 @@ export const User = () => {
 
             let config = {
                 method: 'get',
-                url: `{process.env.REACT_APP_DOMAIN}/v1/user/nfts`,
+                url: `${process.env.REACT_APP_API_DOMAIN}/v1/user/nfts`,
                 headers: {
                     Authorization: session_id,
                 }
