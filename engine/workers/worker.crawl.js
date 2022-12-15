@@ -13,8 +13,6 @@ module.exports = {
     deprecated_scrape: async (data) => {
         try {
 
-            console.log('DATA', data);
-
             let { address } = data;
 
             await rclient.hset('collections.status', address, 'Scraping')
@@ -28,7 +26,6 @@ module.exports = {
                     let success = false;
                     while (!!!success) {
                         try {
-                            console.log("GETTING FROM HELIUS")
                             let url = `https://api.helius.xyz/v0/addresses/${mintAddress}/transactions?api-key=${process.env.HELIUS_API_KEY}&commitment=finalized&type=NFT_SALE`
 
                             let { data } = await axios({ url, method: 'get' })
@@ -78,7 +75,6 @@ module.exports = {
             await rclient.hset('collections.status', address, 'Scraping');
 
             let paginationToken = "";
-            console.log(paginationToken);
 
             await getNFTs(address);
 
@@ -109,8 +105,6 @@ module.exports = {
 
                     let { result } = data;
                     paginationToken = data.paginationToken;
-
-                    console.log(result.length);
 
                     if (!!result.length) {
                         await PromisePool.withConcurrency(20)
@@ -198,8 +192,6 @@ const getNFTs = async (firstCreatorAddress) => {
                     untracked.push(mintAddress);
             });
 
-        console.log(untracked.length);
-
         while (!!untracked.length) {
             let batch = untracked.splice(0, 100)
 
@@ -221,8 +213,6 @@ const getNFTs = async (firstCreatorAddress) => {
                         let { name, image: image_url, symbol, attributes } = item.offChainData;
 
                         let nft = { name, firstCreatorAddress, mintAddress, symbol, updateAuthority, creators, image_url, attributes, currentOwner: null, tx: null };
-
-                        console.log(nft);
 
                         let newNFT = new db.nfts(nft);
                         found = await newNFT.save()

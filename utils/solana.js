@@ -48,7 +48,6 @@ module.exports = {
         }
     },
     getHashlist: async (address) => {
-        console.log(address);
         try {
             const candyMachineId = new PublicKey(address);
             const candyMachineCreator = await getCandyMachineCreator(candyMachineId);
@@ -59,7 +58,6 @@ module.exports = {
                 addresses = await getMintAddresses(candyMachineId);
             }
 
-            console.log(addresses);
 
             return addresses;
         } catch (err) {

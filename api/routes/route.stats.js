@@ -19,8 +19,6 @@ module.exports = (router) => {
                 let userId = req.user.id;
                 let { start, end } = req.query;
 
-                console.log(start, end)
-
                 let user = await db.users.findOne({ _id: userId }).lean();
 
                 let collection = user.collections[0];
@@ -127,11 +125,7 @@ module.exports = (router) => {
 
                 let user = await db.users.findOne({ _id: userId }).lean();
 
-                console.log(user);
-
                 let collection = user.collections[0];
-
-                console.log(collection);
 
                 if (!!collection) {
 
@@ -140,8 +134,6 @@ module.exports = (router) => {
                     start = moment(start || moment().subtract(7, 'd')).startOf('day').unix()
                     end = moment(end || moment()).endOf('day').unix()
 
-                    console.log(userId, start, end)
-
                     let sales = await db.transactions.aggregate([
                         { $match: { firstCreatorAddress, blocktime: { $gte: start + "", $lte: end + "" } } },
                         { $group: { _id: "$buyer", nfts: { $push: '$mintAddress' }, purchases: { $push: "$$ROOT" } } },
@@ -149,8 +141,6 @@ module.exports = (router) => {
 
                     let withRoyaltiesPaid = {
                     }
-
-                    console.log(sales);
 
                     resp = {
                         success: true,

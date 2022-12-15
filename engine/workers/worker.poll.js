@@ -28,8 +28,6 @@ module.exports = {
             //Get collections that are being watched. 
             let collections = await db.collections.find({}).lean();
 
-            console.log('Polling helius..')
-
             await PromisePool
                 .for(collections)
                 .withConcurrency(5)
@@ -40,17 +38,12 @@ module.exports = {
 
                         let [lastTransaction] = await db.transactions.find({ firstCreatorAddress }).sort({ blocktime: -1 }).limit(1).lean();
 
-                        console.log(lastTransaction);
-
                         let endTime = moment().unix()
                         let startTime;
                         if (!!lastTransaction)
                             startTime = +lastTransaction.blocktime - 10;
 
-                        console.log(startTime, endTime);
-
                         let paginationToken = "";
-                        console.log(paginationToken);
 
                         let tries = 0;
 

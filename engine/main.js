@@ -48,7 +48,6 @@ const dequeue = async () => {
 
     cron.schedule(`0 */1 * * * *`, async () => {
         if (!!!pollingOwnedNFTs) {
-            console.log('Polling NFTS');
             pollingOwnedNFTs = true;
             await poll.userWalletNFTs()
             pollingOwnedNFTs = false;

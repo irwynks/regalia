@@ -20,7 +20,6 @@ class Transaction {
     };
 
     save = async () => {
-        console.log(this);
         try {
             let tx = new db.transactions(this.parsed);
             await tx.save()

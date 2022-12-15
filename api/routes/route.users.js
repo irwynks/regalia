@@ -44,8 +44,6 @@ module.exports = (router) => {
                         redirect_uri: 'https://regalia.live/auth'
                     };
 
-                    console.log(slug);
-
                     let getToken = {
                         method: 'post',
                         url: 'https://discord.com/api/v10/oauth2/token',
@@ -54,8 +52,6 @@ module.exports = (router) => {
                     }
 
                     let { data } = await axios(getToken);
-
-                    console.log(data);
 
                     access_token = data.access_token;
                     let expiry = data.expires_in;
@@ -101,8 +97,6 @@ module.exports = (router) => {
                         let cleaned = _.pick(user, ['id', 'username', 'discriminator', 'avatar_url'])
                         cleaned.discordId = cleaned.id;
                         delete cleaned.id;
-
-                        console.log(cleaned);
 
                         let newUser = new db.users(cleaned);
                         found = await newUser.save();
@@ -352,8 +346,6 @@ module.exports = (router) => {
 
                 let userId = req.user.id;
 
-                console.log(userId);
-
                 let user = await db.users.findOne({ _id: userId }).populate('nfts');
 
                 if (!!user) {
@@ -400,7 +392,6 @@ module.exports = (router) => {
 
                 let user = await db.users.findOne({ _id: userId })
 
-                console.log(user);
                 if (data.collections)
                     data.collections = _.uniqBy(data.collections, 'firstCreatorAddress');
 
@@ -420,7 +411,6 @@ module.exports = (router) => {
                 let force = true;
                 for (let { firstCreatorAddress: fca } of data.collections) {
                     let status = await rclient.hget('collections.status', fca)
-                    console.log(status);
                     if (!!force && !/scraping/ig.test(status)) {
                         let slug = {
                             action: 'scrape',

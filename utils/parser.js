@@ -86,7 +86,6 @@ module.exports = {
 
             for (let transfer of nativeTransfers) {
                 if (creators.includes(transfer.toUserAccount)) {
-                    console.log(transfer);
                     parsed.royaltyPaid += +(+transfer.amount / LAMPORTS_PER_SOL).toLocaleString("en-EN", { maximumFractionDigits: 6, })
                 }
             }
