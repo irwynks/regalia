@@ -130,7 +130,7 @@ With that done, you can start up the Portal services by navigating to the root f
 Regalia Portal should be started up on your machine and running on port 3000.
 
 ## License
-Regalia Portal is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Regalia Portal is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 
 ## Thanks!
 I'd like to thank MagicEden once again for the opportunity of being a part of something bigger, as well as the judges for their consideration! Feel free to get in touch at any point in time should there be any questions or issues regarding the Regalia Suite on twitter [@irwynks_sol](https://twitter.com/irwynks_sol) or telegram [@irwynks](https://t.me/irwynks).
