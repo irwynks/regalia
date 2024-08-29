@@ -8,7 +8,7 @@ Regalia Portal: https://regalia.live
 
 Regalia Oracle Documentation: https://documenter.getpostman.com/view/19486091/2s8YzUwMBb
 
-## UPDATE: REGALIA WON 1ST PLACE FOR THE ![FUTURE OF ROYALTIES TRACK IN THE MAGICEDEN CREATOR MONETIZATION HACKATHON](https://x.com/MagicEden/status/1605376522709147648)
+#### UPDATE: REGALIA WON 1ST PLACE FOR THE [FUTURE OF ROYALTIES TRACK IN THE MAGICEDEN CREATOR MONETIZATION HACKATHON](https://x.com/MagicEden/status/1605376522709147648)
 
 ## Motivation
 Optional NFT royalties have become a reality over the past few months, and this has led to the appearance of numerous royalty enforcement/incentivization solutions as creators find ways to revive their royalty revenue streams.
